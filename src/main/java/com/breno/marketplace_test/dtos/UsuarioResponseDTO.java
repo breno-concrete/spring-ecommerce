@@ -7,7 +7,7 @@ public record UsuarioResponseDTO(
         String nome,
         String email
 ) {
-    // Um macete ninja: Um construtor que já converte a Entity para DTO automaticamente
+    // Um construtor que já converte a Entity para DTO automaticamente
     public UsuarioResponseDTO(User usuario) {
         this(usuario.getId(), usuario.getFullName(), usuario.getEmail());
     }
