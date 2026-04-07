@@ -14,3 +14,9 @@ spring:
       hibernate:
         format_sql: true
     show-sql: false
+
+  jwt:
+    secret: ${JWT_SECRET}  # Chave secreta para assinar o token
+    expiration: 86400000                 # Tempo de expiração em ms (1 dia)
+    refreshExpiration: 604800000         # Tempo refresh token (7 dias)
+
