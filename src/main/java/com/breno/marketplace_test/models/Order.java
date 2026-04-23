@@ -36,6 +36,6 @@ public class Order {
     @JoinColumn(name = "addres_id", nullable = false)
     private Addres enderecoEntrega;
 
-    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> itens = new ArrayList<>();
 }

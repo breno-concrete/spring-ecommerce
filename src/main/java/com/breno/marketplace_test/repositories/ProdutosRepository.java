@@ -1,8 +1,9 @@
 package com.breno.marketplace_test.repositories;
 
-import com.breno.marketplace_test.models.Produto;
+import com.breno.marketplace_test.models.Product;
+import com.breno.marketplace_test.models.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProdutosRepository extends JpaRepository<Produto, Integer> {
+public interface ProdutosRepository extends JpaRepository<Product, Integer> {
 
 }

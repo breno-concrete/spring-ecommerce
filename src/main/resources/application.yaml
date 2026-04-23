@@ -2,7 +2,7 @@ spring:
   application:
     name: marketplace-test
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5332}/${DB_NAME:marketplace}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:marketplace}
     password: ${DB_PASSWORD}
     username: ${DB_USERNAME}
     driver-class-name: org.postgresql.Driver

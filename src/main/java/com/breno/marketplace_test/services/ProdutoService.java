@@ -1,7 +1,7 @@
 package com.breno.marketplace_test.services;
 
 import com.breno.marketplace_test.repositories.ProdutosRepository;
-import com.breno.marketplace_test.models.Produto;
+import com.breno.marketplace_test.models.Product;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,15 +15,15 @@ public class ProdutoService {
         this.produtosRepository = produtosRepository;
     }
 
-    public List<Produto> getProdutos(){
+    public List<Product> getProdutos(){
         return produtosRepository.findAll();
     }
 
-    public void insertProduto(Produto produto) {
+    public void insertProduto(Product produto) {
         produtosRepository.save(produto);
     }
 
-    public Produto getProdutosById(Integer id) {
+    public Product getProdutosById(Integer id) {
         return produtosRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
 
     }

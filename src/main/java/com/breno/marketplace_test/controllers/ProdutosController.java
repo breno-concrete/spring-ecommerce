@@ -1,7 +1,8 @@
 package com.breno.marketplace_test.controllers;
 
+import com.breno.marketplace_test.models.Product;
 import com.breno.marketplace_test.services.ProdutoService;
-import com.breno.marketplace_test.models.Produto;
+import com.breno.marketplace_test.models.Product;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,17 +18,17 @@ public class ProdutosController {
     }
 
     @GetMapping
-    public List<Produto> getProdutos(){
+    public List<Product> getProdutos(){
         return produtoService.getProdutos();
     }
 
     @PostMapping
-    public void addNewProduct(@RequestBody Produto produto){
+    public void addNewProduct(@RequestBody Product produto){
         produtoService.insertProduto(produto);
     }
 
     @GetMapping("{id}")
-    public Produto getProdutosById(@PathVariable Integer id){
+    public Product getProdutosById(@PathVariable Integer id){
         return produtoService.getProdutosById(id);
     }
 }
