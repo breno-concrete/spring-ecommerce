@@ -1,7 +1,9 @@
 package com.breno.marketplace_test.models;
 
+import com.breno.marketplace_test.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -18,6 +20,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+
 public class User implements UserDetails {
 
     @Id
@@ -56,7 +60,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.fullName;
+        return this.email;
     }
 
     @Override

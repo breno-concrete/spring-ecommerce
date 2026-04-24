@@ -1,9 +1,15 @@
 package com.breno.marketplace_test.services;
 
+import com.breno.marketplace_test.dtos.UserRequestDTO;
+import com.breno.marketplace_test.dtos.UserResponseDTO;
+import com.breno.marketplace_test.exceptions.UserAlreadyExistsException;
 import com.breno.marketplace_test.models.User;
+import com.breno.marketplace_test.enums.UserRole;
 import com.breno.marketplace_test.repositories.UserRepository;
-import lombok.AllArgsConstructor;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +20,23 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User saveUser(User newUser){
-        return userRepository.save(newUser);
+
+    private PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public UserResponseDTO saveUser(UserRequestDTO dto){
+        if(userRepository.existsByEmail(dto.email())){
+            throw new UserAlreadyExistsException(dto.email());
+        }
+        User user = User.builder()
+                .fullName(dto.fullName())
+                .email(dto.email())
+                .telefone(dto.telefone())
+                .role(UserRole.USER)
+                .passwordHash(passwordEncoder.encode(dto.senha()))
+                .build();
+
+        return toResponseDTO(userRepository.save(user));
     }
 
     public List<User> listarTodos(){
@@ -32,6 +53,14 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    private UserResponseDTO toResponseDTO(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail()
+        );
     }
 
 }
