@@ -26,7 +26,7 @@ public class AuthService {
     @Transactional
     public String login(LoginRequestDTO dto) {
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.email(), dto.password()) // Use dto.senha() ou dto.password() dependendo do seu DTO
+                new UsernamePasswordAuthenticationToken(dto.email(), dto.password()) // Use dto.password() ou dto.password() dependendo do seu DTO
         );
 
         return jwtTokenProvider.generateToken(auth.getName());
@@ -43,8 +43,9 @@ public class AuthService {
                 .email(dto.email())
                 .telefone(dto.telefone())
                 .role(UserRole.USER)
-                .passwordHash(passwordEncoder.encode(dto.senha()))
+                .passwordHash(passwordEncoder.encode(dto.password()))
                 .build();
+        userRepository.save(user);
 
     }
 }
