@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "enderecos")
+@Table(name = "addresses")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Addres {
+public class Address {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,23 +21,24 @@ public class Addres {
     private User user;
 
     @Column(nullable = false)
-    private String cep;
+    private String zipCode;
 
     @Column(nullable = false)
-    private String logradouro;
+    private String street;
 
     @Column(nullable = false)
-    private String numero;
+    private String number;
 
-    private String complemento;
-
-    @Column(nullable = false)
-    private String bairro;
+    private String complement;
 
     @Column(nullable = false)
-    private String cidade;
+    private String neighborhood;
 
     @Column(nullable = false)
-    private String estado;
+    private String city;
+
+    @Column(nullable = false)
+    private String state;
 
 }
+

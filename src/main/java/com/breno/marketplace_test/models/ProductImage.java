@@ -21,6 +21,6 @@ public class ProductImage {
 
     // MUITAS imagens pertencem a UM produto
     @ManyToOne
-    @JoinColumn(name = "produto_id", nullable = false)
-    private Product produto;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }

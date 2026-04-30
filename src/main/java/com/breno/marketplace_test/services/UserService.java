@@ -30,7 +30,7 @@ public class UserService {
         User user = User.builder()
                 .fullName(dto.fullName())
                 .email(dto.email())
-                .telefone(dto.telefone())
+                .phone(dto.phone())
                 .role(UserRole.USER)
                 .passwordHash(passwordEncoder.encode(dto.password()))
                 .build();
@@ -38,11 +38,11 @@ public class UserService {
         return toResponseDTO(userRepository.save(user));
     }
 
-    public List<User> listarTodos(){
+    public List<User> findAll(){
         return userRepository.findAll();
     }
 
-    public Optional<User> buscarPorId(Long id){
+    public Optional<User> findById(Long id){
         return userRepository.findById(id);
     }
 

@@ -41,7 +41,7 @@ public class AuthService {
         User user = User.builder()
                 .fullName(dto.fullName())
                 .email(dto.email())
-                .telefone(dto.telefone())
+                .phone(dto.phone())
                 .role(UserRole.USER)
                 .passwordHash(passwordEncoder.encode(dto.password()))
                 .build();
