@@ -39,13 +39,17 @@ public class User implements UserDetails {
 
     private UserRole role;
 
-    private String telefone;
+    private String phone;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Addres> addres = new ArrayList<>();
+    private List<Address> addresses = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private ShoppingCart cart;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -33,9 +33,9 @@ public class Order {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "addres_id", nullable = false)
-    private Addres enderecoEntrega;
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address deliveryAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItem> itens = new ArrayList<>();
+    private List<OrderItem> items = new ArrayList<>();
 }

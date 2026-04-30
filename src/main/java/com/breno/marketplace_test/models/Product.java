@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "produtos")
+@Table(name = "products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,11 +30,11 @@ public class Product {
     private Integer unit;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false)
-    private Category categoria;
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> imagens = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 
 
 

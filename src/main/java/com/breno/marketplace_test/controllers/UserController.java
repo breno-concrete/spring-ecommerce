@@ -10,21 +10,20 @@ import org.springframework.web.bind.annotation.*;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-@RequestMapping("api/v1/usuarios")
+@RequestMapping("api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> listarUsuarios() {
-        return ok(userService.listarTodos());
+    public ResponseEntity<?> listUsers() {
+        return ok(userService.findAll());
     }
 
     @PostMapping
-    public ResponseEntity<String> criarUsuario(@RequestBody UserRequestDTO user) {
+    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO user) {
         userService.saveUser(user);
-        // Lógica para criar um novo usuário
-        return ok("Usuário criado com sucesso!");
+        return ok("User created successfully!");
     }
 }

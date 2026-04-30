@@ -8,7 +8,6 @@ import com.breno.marketplace_test.enums.UserRole;
 import com.breno.marketplace_test.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,19 +30,19 @@ public class UserService {
         User user = User.builder()
                 .fullName(dto.fullName())
                 .email(dto.email())
-                .telefone(dto.telefone())
+                .phone(dto.phone())
                 .role(UserRole.USER)
-                .passwordHash(passwordEncoder.encode(dto.senha()))
+                .passwordHash(passwordEncoder.encode(dto.password()))
                 .build();
 
         return toResponseDTO(userRepository.save(user));
     }
 
-    public List<User> listarTodos(){
+    public List<User> findAll(){
         return userRepository.findAll();
     }
 
-    public Optional<User> buscarPorId(Long id){
+    public Optional<User> findById(Long id){
         return userRepository.findById(id);
     }
 
