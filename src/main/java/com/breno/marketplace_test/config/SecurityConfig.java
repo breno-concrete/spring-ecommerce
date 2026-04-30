@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/api/v1/usuarios").permitAll()
                         .requestMatchers("/api/v1/health").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/swagger-ui.html").permitAll()
                         // Correção aqui nas duas linhas abaixo:
                         .requestMatchers(HttpMethod.GET, "/api/v1/produtos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categorias/**").permitAll()
