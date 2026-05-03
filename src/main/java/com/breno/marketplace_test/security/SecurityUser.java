@@ -1,10 +1,12 @@
 package com.breno.marketplace_test.security;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.breno.marketplace_test.models.User;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class SecurityUser implements UserDetails {
 
@@ -24,7 +26,8 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return new ArrayList<>();
+        // Pega o nome do Enum (ex: ADMIN) e junta com "ROLE_" -> "ROLE_ADMIN"
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     @Override
