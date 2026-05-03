@@ -42,16 +42,35 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> findById(Long id){
-        return userRepository.findById(id);
+    public User findById(Long id){
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
     }
 
-    public boolean deleteUser(Long id){
-        if(userRepository.existsById(id)){
-            userRepository.deleteById(id);
-            return true;
+    @Transactional
+    public UserResponseDTO updateUser(Long id, UserRequestDTO dto){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+
+        user.setFullName(dto.fullName());
+        user.setPhone(dto.phone());
+        if(!user.getEmail().equals(dto.email())){
+            if(userRepository.existsByEmail(dto.email())){
+                throw new UserAlreadyExistsException(dto.email());
+            }
+            user.setEmail(dto.email());
         }
-        return false;
+        if(dto.password() != null && !dto.password().isEmpty()){
+            user.setPasswordHash(passwordEncoder.encode(dto.password()));
+        }
+
+        return toResponseDTO(userRepository.save(user));
+    }
+
+    public void deleteUser(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+        userRepository.delete(user);
     }
 
     private UserResponseDTO toResponseDTO(User user) {
