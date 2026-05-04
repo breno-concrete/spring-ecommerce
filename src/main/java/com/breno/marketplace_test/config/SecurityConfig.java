@@ -51,14 +51,31 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+
+                        //ROTAS PÚBLICAS
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/api/v1/usuarios").permitAll()
                         .requestMatchers("/api/v1/health").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**","/swagger-ui.html").permitAll()
-                        // Correção aqui nas duas linhas abaixo:
-                        .requestMatchers(HttpMethod.GET, "/api/v1/produtos/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/categorias/**").permitAll()
+
+
+                        // VITRINE
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
+
+
+                        //REGRAS DE ADMIN
+
+                        //PRODUTOS
+                        .requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/products/**").hasRole("ADMIN")
+                        //CATEGORIAS
+                        .requestMatchers(HttpMethod.POST, "/api/v1/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
