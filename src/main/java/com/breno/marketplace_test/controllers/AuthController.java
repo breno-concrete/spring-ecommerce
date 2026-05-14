@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/auth")
@@ -39,9 +36,14 @@ public class AuthController {
             return ResponseEntity.ok().build();
         }
 
-        public ResponseEntity<String> logout(){
+        @PostMapping("/logout")
+        public ResponseEntity<Void> logout(
+                @RequestHeader("Authorization") String tokenHeader){
+            service.logout(tokenHeader);
 
-            ser
+            // O token é enviado no header Authorization, então não precisamos de um corpo para logout
+            // O serviço de logout irá extrair o token do header e invalidá-lo
+            return ResponseEntity.noContent().build();
 
         }
 

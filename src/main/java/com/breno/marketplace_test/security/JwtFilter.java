@@ -1,10 +1,12 @@
 package com.breno.marketplace_test.security;
 
 import com.breno.marketplace_test.exceptions.InvalidTokenException;
+import com.breno.marketplace_test.services.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,16 +14,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
-
-    public JwtFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userDetailsService = userDetailsService;
-    }
+    private final TokenBlacklistService blacklistService;
 
     @Override
     protected void doFilterInternal( //vai verificar se o request possui um token válido
@@ -31,6 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try {
             String token = extractToken(request);
+
+            if (blacklistService.isBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token revoked");
+                return;
+            }
 
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) { //se possui token ou se não existe uma verificação anterior
                 String email = jwtTokenProvider.validateAndGetEmail(token);
