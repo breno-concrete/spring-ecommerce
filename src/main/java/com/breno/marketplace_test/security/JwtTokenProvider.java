@@ -7,11 +7,19 @@ import com.breno.marketplace_test.config.JwtProperties;
 import com.breno.marketplace_test.exceptions.InvalidTokenException;
 import org.springframework.stereotype.Component;
 import java.time.Instant;
+import java.util.Date;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
+
+    @Value("${JWT_SECRET}")
+    private String secret;
 
     public JwtTokenProvider(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
@@ -48,4 +56,20 @@ public class JwtTokenProvider {
             throw new InvalidTokenException("Token is invalid or expired");
         }
     }
+
+    public long getRemainingTtlMillis(String token) {
+        Date expiration = extractAllClaims(token).getExpiration(); //TEMPO DE EXPIRAÇÃO DO TOKEN
+        long remaining = expiration.getTime() - System.currentTimeMillis(); //TEMPO RESTANTE PARA EXPIRAÇÃO
+        return Math.max(remaining, 0); // RETORNA 0 (CASO NEGATIVO) OU O TEMPO QUE RESTA
+    }
+
+    private Claims extractAllClaims(String token) { // METDO AUXILIAR PARA EXTRAIR TODAS AS INFOS DENTRO DE UM TOKEN
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+
 }

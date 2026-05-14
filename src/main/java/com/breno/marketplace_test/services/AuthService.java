@@ -48,4 +48,8 @@ public class AuthService {
         userRepository.save(user);
 
     }
+
+    public void logout(String tokenHeader){
+
+    }
 }

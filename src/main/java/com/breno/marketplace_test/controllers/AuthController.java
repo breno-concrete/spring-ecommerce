@@ -39,4 +39,10 @@ public class AuthController {
             return ResponseEntity.ok().build();
         }
 
+        public ResponseEntity<String> logout(){
+
+            ser
+
+        }
+
 }
