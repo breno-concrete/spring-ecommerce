@@ -7,6 +7,7 @@ import com.breno.marketplace_test.services.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Category created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO category) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO category) {
         return ResponseEntity.ok(categoryService.saveCategory(category));
     }
 
@@ -54,7 +55,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Category updated"),
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
-    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDTO category) {
+    public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO category) {
         return ResponseEntity.ok(categoryService.updateCategory(id, category));
     }
 

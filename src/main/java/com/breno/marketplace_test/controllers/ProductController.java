@@ -7,6 +7,7 @@ import com.breno.marketplace_test.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Product created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO product){
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO product){
         return ResponseEntity.ok(productService.saveProduct(product));
     }
 
@@ -53,7 +54,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Product updated"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Integer id, @RequestBody ProductRequestDTO product){
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductRequestDTO product){
         return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 

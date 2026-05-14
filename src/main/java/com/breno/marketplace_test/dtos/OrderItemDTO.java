@@ -19,4 +19,3 @@ public record OrderItemDTO(
         @Positive(message = "Price must be positive")
         BigDecimal pricePurchased
 ) {}
-

@@ -7,6 +7,7 @@ import com.breno.marketplace_test.services.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class AddressController {
             @ApiResponse(responseCode = "200", description = "Address created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<AddressResponseDTO> createAddress(@RequestBody AddressRequestDTO address) {
+    public ResponseEntity<AddressResponseDTO> createAddress(@Valid @RequestBody AddressRequestDTO address) {
         return ResponseEntity.ok(addressService.saveAddress(address));
     }
 
@@ -54,7 +55,7 @@ public class AddressController {
             @ApiResponse(responseCode = "200", description = "Address updated"),
             @ApiResponse(responseCode = "404", description = "Address not found")
     })
-    public ResponseEntity<AddressResponseDTO> updateAddress(@PathVariable Long id, @RequestBody AddressRequestDTO address) {
+    public ResponseEntity<AddressResponseDTO> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressRequestDTO address) {
         return ResponseEntity.ok(addressService.updateAddress(id, address));
     }
 

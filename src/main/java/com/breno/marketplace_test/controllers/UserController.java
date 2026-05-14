@@ -3,6 +3,7 @@ package com.breno.marketplace_test.controllers;
 import com.breno.marketplace_test.dtos.UserRequestDTO;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO user) {
+    public ResponseEntity<String> createUser(@Valid @RequestBody UserRequestDTO user) {
         userService.saveUser(user);
         return ok("User created successfully!");
     }

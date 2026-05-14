@@ -13,4 +13,3 @@ public record CartItemDTO(
         @Positive(message = "Quantity must be positive")
         Integer quantity
 ) {}
-

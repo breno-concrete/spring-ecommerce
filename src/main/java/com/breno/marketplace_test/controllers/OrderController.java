@@ -7,6 +7,7 @@ import com.breno.marketplace_test.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "Order created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderRequestDTO order) {
+    public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO order) {
         return ResponseEntity.ok(orderService.saveOrder(order));
     }
 
@@ -54,7 +55,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "Order updated"),
             @ApiResponse(responseCode = "404", description = "Order not found")
     })
-    public ResponseEntity<OrderResponseDTO> updateOrder(@PathVariable Integer id, @RequestBody OrderRequestDTO order) {
+    public ResponseEntity<OrderResponseDTO> updateOrder(@PathVariable Integer id, @Valid @RequestBody OrderRequestDTO order) {
         return ResponseEntity.ok(orderService.updateOrder(id, order));
     }
 

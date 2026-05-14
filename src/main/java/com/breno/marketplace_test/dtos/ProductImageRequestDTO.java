@@ -10,4 +10,3 @@ public record ProductImageRequestDTO(
         @NotNull(message = "Product ID is required")
         Long productId
 ) {}
-
