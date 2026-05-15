@@ -1,6 +1,8 @@
 package com.breno.marketplace_test.services;
 
 import com.breno.marketplace_test.dtos.LoginRequestDTO;
+import com.breno.marketplace_test.dtos.RefreshTokenRequestDTO;
+import com.breno.marketplace_test.dtos.RefreshTokenResponseDTO;
 import com.breno.marketplace_test.dtos.UserRequestDTO;
 import com.breno.marketplace_test.enums.UserRole;
 import com.breno.marketplace_test.exceptions.InvalidTokenException;
@@ -68,5 +70,16 @@ public class AuthService {
 
         tokenBlacklistService.blacklist(token, ttl); // adiciona no bacno Redis
 
+    }
+
+    public RefreshTokenResponseDTO refreshToken(RefreshTokenRequestDTO request){
+        String requestRefreshToken = request.refreshToken();
+
+        String email = jwtTokenProvider.validateRefreshTokenAndGetEmail(requestRefreshToken); // valida o token e pega o email
+
+        String newAccessToken = jwtTokenProvider.generateToken(email); // gera um novo token de acesso
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(email); // gera um novo token
+
+        return new RefreshTokenResponseDTO(newAccessToken, newRefreshToken);
     }
 }

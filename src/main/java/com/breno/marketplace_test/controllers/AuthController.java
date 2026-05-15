@@ -1,9 +1,7 @@
 package com.breno.marketplace_test.controllers;
 
 
-import com.breno.marketplace_test.dtos.LoginRequestDTO;
-import com.breno.marketplace_test.dtos.LoginResponseDTO;
-import com.breno.marketplace_test.dtos.UserRequestDTO;
+import com.breno.marketplace_test.dtos.*;
 import com.breno.marketplace_test.security.JwtTokenProvider;
 import com.breno.marketplace_test.services.AuthService;
 import com.breno.marketplace_test.services.AuthorizationService;
@@ -26,8 +24,9 @@ public class AuthController {
 
         @PostMapping("/login")
         public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid LoginRequestDTO dto){
-            String token = service.login(dto);
-            return ResponseEntity.ok(new LoginResponseDTO(token, dto.email()));
+            String accessToken = service.login(dto);
+            String refreshToken = jwtTokenProvider.generateRefreshToken(dto.email());
+            return ResponseEntity.ok(new LoginResponseDTO(accessToken, refreshToken, dto.email()));
         }
 
         @PostMapping("/register")
@@ -45,6 +44,13 @@ public class AuthController {
             // O serviço de logout irá extrair o token do header e invalidá-lo
             return ResponseEntity.noContent().build();
 
+        }
+
+        @PostMapping("/refresh")
+        public ResponseEntity<RefreshTokenResponseDTO> refreshToken(
+                @Valid @RequestBody RefreshTokenRequestDTO requestDTO){
+            RefreshTokenResponseDTO newToken = service.refreshToken(requestDTO);
+            return ResponseEntity.ok(newToken);
         }
 
 }
