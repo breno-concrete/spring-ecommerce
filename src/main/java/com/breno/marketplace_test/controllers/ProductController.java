@@ -8,11 +8,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/products")
 public class ProductController {
@@ -35,7 +37,10 @@ public class ProductController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO product){
-        return ResponseEntity.ok(productService.saveProduct(product));
+        log.info("Requisição POST para criar novo produto: {}", product.name());
+        ProductResponseDTO response = productService.saveProduct(product);
+        log.info("Produto criado com sucesso. ID: {}", response.id());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("{id}")
@@ -55,7 +60,10 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductRequestDTO product){
-        return ResponseEntity.ok(productService.updateProduct(id, product));
+        log.info("Requisição PUT para atualizar produto com ID: {}", id);
+        ProductResponseDTO response = productService.updateProduct(id, product);
+        log.info("Produto com ID {} atualizado com sucesso", id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("{id}")
@@ -65,7 +73,9 @@ public class ProductController {
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
     public ResponseEntity<String> deleteProduct(@PathVariable Integer id){
+        log.info("Requisição DELETE para deletar produto com ID: {}", id);
         productService.deleteProduct(id);
+        log.info("Produto com ID {} deletado com sucesso", id);
         return ResponseEntity.ok("Product deleted successfully!");
     }
 }

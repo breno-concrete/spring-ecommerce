@@ -11,12 +11,15 @@ import com.breno.marketplace_test.repositories.UserRepository;
 import com.breno.marketplace_test.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -33,12 +36,16 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(dto.email(), dto.password()) // Use dto.password() ou dto.password() dependendo do seu DTO
         );
 
+        log.info("User " + auth.getName() + " authenticated successfully.");
         return jwtTokenProvider.generateToken(auth.getName());
     }
 
     @Transactional
     public void register(UserRequestDTO dto){
         if(userRepository.existsByEmail(dto.email())){
+
+            log.warn("Tentativa de registro falhou. O email '{}' já está em uso.", dto.email());
+
             throw new RuntimeException("Email already in use");
         }
 
@@ -50,6 +57,8 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(dto.password()))
                 .build();
         userRepository.save(user);
+
+        log.info("Novo usuário registrado com sucesso: {}", dto.email());
 
     }
 

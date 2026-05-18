@@ -51,7 +51,7 @@ public class JwtTokenProvider {
         try {
             return JWT.require(Algorithm.HMAC256(jwtProperties.getSecret()))
                     .withIssuer("ecommerce")
-                    .withClaim("type", "acces")
+                    .withClaim("type", "access")
                     .build()
                     .verify(token)
                     .getSubject();

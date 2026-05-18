@@ -8,11 +8,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/addresses")
 public class AddressController {
@@ -36,7 +38,10 @@ public class AddressController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<AddressResponseDTO> createAddress(@Valid @RequestBody AddressRequestDTO address) {
-        return ResponseEntity.ok(addressService.saveAddress(address));
+        log.info("Requisição POST para criar novo endereço. Usuário: {}", address.userId());
+        AddressResponseDTO response = addressService.saveAddress(address);
+        log.info("Endereço criado com sucesso. ID: {}", response.id());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("{id}")
@@ -56,7 +61,10 @@ public class AddressController {
             @ApiResponse(responseCode = "404", description = "Address not found")
     })
     public ResponseEntity<AddressResponseDTO> updateAddress(@PathVariable Long id, @Valid @RequestBody AddressRequestDTO address) {
-        return ResponseEntity.ok(addressService.updateAddress(id, address));
+        log.info("Requisição PUT para atualizar endereço com ID: {}", id);
+        AddressResponseDTO response = addressService.updateAddress(id, address);
+        log.info("Endereço com ID {} atualizado com sucesso", id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("{id}")
@@ -66,7 +74,9 @@ public class AddressController {
             @ApiResponse(responseCode = "404", description = "Address not found")
     })
     public ResponseEntity<String> deleteAddress(@PathVariable Long id) {
+        log.info("Requisição DELETE para deletar endereço com ID: {}", id);
         addressService.deleteAddress(id);
+        log.info("Endereço com ID {} deletado com sucesso", id);
         return ResponseEntity.ok("Address deleted successfully!");
     }
 }

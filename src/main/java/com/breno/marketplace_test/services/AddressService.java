@@ -6,10 +6,12 @@ import com.breno.marketplace_test.models.Address;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class AddressService {
 
@@ -31,8 +33,12 @@ public class AddressService {
     }
 
     public AddressResponseDTO saveAddress(AddressRequestDTO addressDTO) {
+        log.info("Salvando novo endereço para o usuário: {}", addressDTO.userId());
         User user = userRepository.findById(addressDTO.userId())
-                .orElseThrow(() -> new IllegalStateException("User " + addressDTO.userId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Usuário com ID {} não encontrado ao tentar salvar endereço", addressDTO.userId());
+                    return new IllegalStateException("User " + addressDTO.userId() + " not found!");
+                });
 
         Address address = new Address();
         address.setUser(user);
@@ -45,15 +51,23 @@ public class AddressService {
         address.setState(addressDTO.state());
 
         Address savedAddress = addressRepository.save(address);
+        log.info("Endereço salvo com sucesso. ID: {}, CEP: {}", savedAddress.getId(), savedAddress.getZipCode());
         return convertToResponseDTO(savedAddress);
     }
 
     public AddressResponseDTO updateAddress(Long id, AddressRequestDTO addressDTO) {
+        log.info("Atualizando endereço com ID: {}", id);
         Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Endereço com ID {} não encontrado para atualização", id);
+                    return new IllegalStateException(id + " not found!");
+                });
 
         User user = userRepository.findById(addressDTO.userId())
-                .orElseThrow(() -> new IllegalStateException("User " + addressDTO.userId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Usuário com ID {} não encontrado ao tentar atualizar endereço", addressDTO.userId());
+                    return new IllegalStateException("User " + addressDTO.userId() + " not found!");
+                });
 
         address.setUser(user);
         address.setZipCode(addressDTO.zipCode());
@@ -65,13 +79,19 @@ public class AddressService {
         address.setState(addressDTO.state());
 
         Address updatedAddress = addressRepository.save(address);
+        log.info("Endereço com ID {} atualizado com sucesso", id);
         return convertToResponseDTO(updatedAddress);
     }
 
     public void deleteAddress(Long id) {
+        log.info("Deletando endereço com ID: {}", id);
         Address address = addressRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Endereço com ID {} não encontrado para deleção", id);
+                    return new IllegalStateException(id + " not found!");
+                });
         addressRepository.delete(address);
+        log.info("Endereço com ID {} deletado com sucesso", id);
     }
 
     private AddressResponseDTO convertToResponseDTO(Address address) {

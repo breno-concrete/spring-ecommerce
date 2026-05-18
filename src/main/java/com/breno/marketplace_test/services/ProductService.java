@@ -4,10 +4,12 @@ import com.breno.marketplace_test.dtos.ProductRequestDTO;
 import com.breno.marketplace_test.dtos.ProductResponseDTO;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.models.Product;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class ProductService {
 
@@ -22,12 +24,15 @@ public class ProductService {
     }
 
     public ProductResponseDTO saveProduct(ProductRequestDTO productDTO) {
+        log.info("Salvando novo produto: {}", productDTO.name());
         Product product = new Product();
         product.setName(productDTO.name());
         product.setPrice(productDTO.price());
         product.setUnit(productDTO.unit());
         product.setCategory(productDTO.category());
         Product savedProduct = productRepository.save(product);
+        log.info("Produto salvo com sucesso. ID: {}, Nome: {}, Preço: {}",
+                savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice());
         return convertToResponseDTO(savedProduct);
     }
 
@@ -37,20 +42,31 @@ public class ProductService {
     }
 
     public ProductResponseDTO updateProduct(Integer id, ProductRequestDTO product) {
-        Product newProduct = productRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
+        log.info("Atualizando produto com ID: {}", id);
+        Product newProduct = productRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Produto com ID {} não encontrado para atualização", id);
+                    return new IllegalStateException(id + " not found!");
+                });
         newProduct.setName(product.name());
         newProduct.setPrice(product.price());
         newProduct.setUnit(product.unit());
         newProduct.setCategory(product.category());
         Product updatedProduct = productRepository.save(newProduct);
-
+        log.info("Produto com ID {} atualizado com sucesso. Novo nome: {}", id, updatedProduct.getName());
         return convertToResponseDTO(updatedProduct);
 
     }
 
     public void deleteProduct(Integer id) {
-        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!"));
+        log.info("Deletando produto com ID: {}", id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Produto com ID {} não encontrado para deleção", id);
+                    return new IllegalStateException(id + " not found!");
+                });
         productRepository.delete(product);
+        log.info("Produto com ID {} deletado com sucesso", id);
     }
 
     private ProductResponseDTO convertToResponseDTO(Product product) {

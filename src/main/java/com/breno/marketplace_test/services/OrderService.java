@@ -10,12 +10,16 @@ import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.OrderRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page; // USE ESTE
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable; // USE ESTE
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -29,8 +33,8 @@ public class OrderService {
         this.addressRepository = addressRepository;
     }
 
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public Page<Order> findAll(Pageable pageable) {
+        return orderRepository.findAll(pageable);
     }
 
     public Order findOrderById(Integer id) {
@@ -39,11 +43,18 @@ public class OrderService {
     }
 
     public OrderResponseDTO saveOrder(OrderRequestDTO orderDTO) {
+        log.info("Salvando novo pedido para o usuário: {}", orderDTO.userId());
         User user = userRepository.findById(orderDTO.userId())
-                .orElseThrow(() -> new IllegalStateException("User " + orderDTO.userId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Usuário com ID {} não encontrado ao salvar pedido", orderDTO.userId());
+                    return new IllegalStateException("User " + orderDTO.userId() + " not found!");
+                });
 
         Address deliveryAddress = addressRepository.findById(orderDTO.deliveryAddressId())
-                .orElseThrow(() -> new IllegalStateException("Address " + orderDTO.deliveryAddressId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Endereço com ID {} não encontrado ao salvar pedido", orderDTO.deliveryAddressId());
+                    return new IllegalStateException("Address " + orderDTO.deliveryAddressId() + " not found!");
+                });
 
         Order order = new Order();
         order.setCreationTime(LocalDateTime.now());
@@ -65,18 +76,30 @@ public class OrderService {
         order.setItems(items);
 
         Order savedOrder = orderRepository.save(order);
+        log.info("Pedido salvo com sucesso. ID: {}, Usuário: {}, Status: {}, Itens: {}",
+                savedOrder.getId(), user.getEmail(), savedOrder.getOrderStatus(), items.size());
         return convertToResponseDTO(savedOrder);
     }
 
     public OrderResponseDTO updateOrder(Integer id, OrderRequestDTO orderDTO) {
+        log.info("Atualizando pedido com ID: {}", id);
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Pedido com ID {} não encontrado para atualização", id);
+                    return new IllegalStateException(id + " not found!");
+                });
 
         User user = userRepository.findById(orderDTO.userId())
-                .orElseThrow(() -> new IllegalStateException("User " + orderDTO.userId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Usuário com ID {} não encontrado ao atualizar pedido", orderDTO.userId());
+                    return new IllegalStateException("User " + orderDTO.userId() + " not found!");
+                });
 
         Address deliveryAddress = addressRepository.findById(orderDTO.deliveryAddressId())
-                .orElseThrow(() -> new IllegalStateException("Address " + orderDTO.deliveryAddressId() + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Endereço com ID {} não encontrado ao atualizar pedido", orderDTO.deliveryAddressId());
+                    return new IllegalStateException("Address " + orderDTO.deliveryAddressId() + " not found!");
+                });
 
         order.setOrderStatus(orderDTO.orderStatus());
         order.setUser(user);
@@ -97,13 +120,19 @@ public class OrderService {
         order.setItems(items);
 
         Order updatedOrder = orderRepository.save(order);
+        log.info("Pedido com ID {} atualizado com sucesso. Novo status: {}", id, updatedOrder.getOrderStatus());
         return convertToResponseDTO(updatedOrder);
     }
 
     public void deleteOrder(Integer id) {
+        log.info("Deletando pedido com ID: {}", id);
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+                .orElseThrow(() -> {
+                    log.warn("Pedido com ID {} não encontrado para deleção", id);
+                    return new IllegalStateException(id + " not found!");
+                });
         orderRepository.delete(order);
+        log.info("Pedido com ID {} deletado com sucesso", id);
     }
 
     private OrderResponseDTO convertToResponseDTO(Order order) {
