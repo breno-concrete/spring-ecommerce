@@ -2,8 +2,11 @@ package com.breno.marketplace_test.services;
 
 import com.breno.marketplace_test.dtos.ProductRequestDTO;
 import com.breno.marketplace_test.dtos.ProductResponseDTO;
+import com.breno.marketplace_test.models.Category;
+import com.breno.marketplace_test.repositories.CategoryRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.models.Product;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +14,15 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
-    public List<Product> findAll(){
-        return productRepository.findAll();
+    public List<Product> findAll(String name, Long categoryId){
+        return productRepository.findByFilters(name,categoryId);
     }
 
     public ProductResponseDTO saveProduct(ProductRequestDTO productDTO) {
@@ -29,19 +31,23 @@ public class ProductService {
         product.setName(productDTO.name());
         product.setPrice(productDTO.price());
         product.setUnit(productDTO.unit());
-        product.setCategory(productDTO.category());
+
+
+        product.setCategory(findCategoryOrThrow(productDTO.category_id()));
+
+
         Product savedProduct = productRepository.save(product);
         log.info("Produto salvo com sucesso. ID: {}, Nome: {}, Preço: {}",
                 savedProduct.getId(), savedProduct.getName(), savedProduct.getPrice());
         return convertToResponseDTO(savedProduct);
     }
 
-    public Product findProductById(Integer id) {
+    public Product findProductById(Long id) {
         return productRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
 
     }
 
-    public ProductResponseDTO updateProduct(Integer id, ProductRequestDTO product) {
+    public ProductResponseDTO updateProduct(Long id, ProductRequestDTO product) {
         log.info("Atualizando produto com ID: {}", id);
         Product newProduct = productRepository.findById(id)
                 .orElseThrow(() -> {
@@ -51,14 +57,16 @@ public class ProductService {
         newProduct.setName(product.name());
         newProduct.setPrice(product.price());
         newProduct.setUnit(product.unit());
-        newProduct.setCategory(product.category());
+
+        newProduct.setCategory(findCategoryOrThrow(product.category_id()));
+
         Product updatedProduct = productRepository.save(newProduct);
         log.info("Produto com ID {} atualizado com sucesso. Novo nome: {}", id, updatedProduct.getName());
         return convertToResponseDTO(updatedProduct);
 
     }
 
-    public void deleteProduct(Integer id) {
+    public void deleteProduct(Long id) {
         log.info("Deletando produto com ID: {}", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> {
@@ -84,6 +92,14 @@ public class ProductService {
                 product.getCategory().getName(),
                 imagesUrls
         );
+    }
+
+    private Category findCategoryOrThrow(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> {
+                    log.warn("Categoria com ID {} não encontrada", categoryId);
+                    return new IllegalStateException("Categoria " + categoryId + " não encontrada!");
+                });
     }
 }
 

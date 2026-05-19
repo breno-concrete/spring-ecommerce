@@ -26,8 +26,10 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getProducts(){
-        return productService.findAll();
+    public List<Product> getProducts(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long category_id){
+        return productService.findAll(name, category_id);
     }
 
     @PostMapping
@@ -49,7 +51,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Product found"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public Product getProductById(@PathVariable Integer id){
+    public Product getProductById(@PathVariable Long id){
         return productService.findProductById(id);
     }
 
@@ -59,7 +61,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Product updated"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Integer id, @Valid @RequestBody ProductRequestDTO product){
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO product){
         log.info("Requisição PUT para atualizar produto com ID: {}", id);
         ProductResponseDTO response = productService.updateProduct(id, product);
         log.info("Produto com ID {} atualizado com sucesso", id);
@@ -72,7 +74,7 @@ public class ProductController {
             @ApiResponse(responseCode = "204", description = "Product deleted"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public ResponseEntity<String> deleteProduct(@PathVariable Integer id){
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id){
         log.info("Requisição DELETE para deletar produto com ID: {}", id);
         productService.deleteProduct(id);
         log.info("Produto com ID {} deletado com sucesso", id);

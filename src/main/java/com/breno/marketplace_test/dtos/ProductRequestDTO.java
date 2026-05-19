@@ -20,7 +20,7 @@ public record ProductRequestDTO(
         Integer unit,
 
         @NotNull(message = "Category is required")
-        Category category
+        Long category_id
 
 )
 {}

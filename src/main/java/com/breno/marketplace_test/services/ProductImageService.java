@@ -34,7 +34,7 @@ public class ProductImageService {
 
     public ProductImageResponseDTO saveProductImage(ProductImageRequestDTO imageDTO) {
         log.info("Salvando nova imagem para o produto: {}", imageDTO.productId());
-        Product product = productRepository.findById(Math.toIntExact(imageDTO.productId()))
+        Product product = productRepository.findById(imageDTO.productId())
                 .orElseThrow(() -> {
                     log.warn("Produto com ID {} não encontrado ao salvar imagem", imageDTO.productId());
                     return new IllegalStateException("Product " + imageDTO.productId() + " not found!");
@@ -58,7 +58,7 @@ public class ProductImageService {
                     return new IllegalStateException(id + " not found!");
                 });
 
-        Product product = productRepository.findById(Math.toIntExact(imageDTO.productId()))
+        Product product = productRepository.findById(imageDTO.productId())
                 .orElseThrow(() -> {
                     log.warn("Produto com ID {} não encontrado ao atualizar imagem", imageDTO.productId());
                     return new IllegalStateException("Product " + imageDTO.productId() + " not found!");

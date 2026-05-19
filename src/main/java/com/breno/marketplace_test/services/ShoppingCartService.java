@@ -57,7 +57,7 @@ public class ShoppingCartService {
         // Converter CartItemDTO para CartItem
         List<CartItem> items = cartDTO.items().stream()
                 .map(itemDTO -> {
-                    Product product = productRepository.findById(Math.toIntExact(itemDTO.productId()))
+                    Product product = productRepository.findById(itemDTO.productId())
                             .orElseThrow(() -> {
                                 log.warn("Produto com ID {} não encontrado ao salvar carrinho", itemDTO.productId());
                                 return new IllegalStateException("Product " + itemDTO.productId() + " not found!");
@@ -99,7 +99,7 @@ public class ShoppingCartService {
         cart.getItems().clear();
         List<CartItem> items = cartDTO.items().stream()
                 .map(itemDTO -> {
-                    Product product = productRepository.findById(Math.toIntExact(itemDTO.productId()))
+                    Product product = productRepository.findById(itemDTO.productId())
                             .orElseThrow(() -> {
                                 log.warn("Produto com ID {} não encontrado ao atualizar carrinho", itemDTO.productId());
                                 return new IllegalStateException("Product " + itemDTO.productId() + " not found!");

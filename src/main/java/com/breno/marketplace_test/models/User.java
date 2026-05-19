@@ -48,7 +48,7 @@ public class User {
     private List<Order> orders = new ArrayList<>();
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

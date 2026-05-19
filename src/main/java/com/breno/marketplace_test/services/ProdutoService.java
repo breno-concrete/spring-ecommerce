@@ -1,7 +1,7 @@
 package com.breno.marketplace_test.services;
 
-import com.breno.marketplace_test.repositories.ProdutosRepository;
 import com.breno.marketplace_test.models.Product;
+import com.breno.marketplace_test.repositories.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,9 @@ import java.util.List;
 @Service
 public class ProdutoService {
 
-    private final ProdutosRepository produtosRepository;
+    private final ProductRepository produtosRepository;
 
-    public ProdutoService(ProdutosRepository produtosRepository) {
+    public ProdutoService(ProductRepository produtosRepository) {
         this.produtosRepository = produtosRepository;
     }
 
@@ -27,7 +27,7 @@ public class ProdutoService {
         log.info("Produto inserido com sucesso. ID: {}, Nome: {}", savedProduct.getId(), savedProduct.getName());
     }
 
-    public Product getProdutosById(Integer id) {
+    public Product getProdutosById(Long id) {
         return produtosRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
 
     }
