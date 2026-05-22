@@ -1,5 +1,6 @@
 package com.breno.marketplace_test.controllers;
 
+import com.breno.marketplace_test.dtos.ProductFilterDTO;
 import com.breno.marketplace_test.dtos.ProductRequestDTO;
 import com.breno.marketplace_test.dtos.ProductResponseDTO;
 import com.breno.marketplace_test.models.Product;
@@ -9,10 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @RestController
@@ -26,10 +29,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getProducts(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Long category_id){
-        return productService.findAll(name, category_id);
+    public ResponseEntity<Page<ProductResponseDTO>> search(
+            @ModelAttribute ProductFilterDTO filter,
+            @ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable) {
+
+        Page<ProductResponseDTO> result = productService.searchProducts(filter, pageable);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping

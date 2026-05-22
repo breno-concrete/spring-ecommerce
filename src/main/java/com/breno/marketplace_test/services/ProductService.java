@@ -1,15 +1,20 @@
 package com.breno.marketplace_test.services;
 
+import com.breno.marketplace_test.dtos.ProductFilterDTO;
 import com.breno.marketplace_test.dtos.ProductRequestDTO;
 import com.breno.marketplace_test.dtos.ProductResponseDTO;
 import com.breno.marketplace_test.models.Category;
 import com.breno.marketplace_test.repositories.CategoryRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.models.Product;
+import com.breno.marketplace_test.repositories.spec.ProductSpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Slf4j
@@ -20,10 +25,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-
-    public List<Product> findAll(String name, Long categoryId){
-        return productRepository.findByFilters(name,categoryId);
-    }
 
     public ProductResponseDTO saveProduct(ProductRequestDTO productDTO) {
         log.info("Salvando novo produto: {}", productDTO.name());
@@ -100,6 +101,16 @@ public class ProductService {
                     log.warn("Categoria com ID {} não encontrada", categoryId);
                     return new IllegalStateException("Categoria " + categoryId + " não encontrada!");
                 });
+    }
+
+
+    public Page<ProductResponseDTO> searchProducts(ProductFilterDTO filter, Pageable pageable){
+        Specification<Product> spec = ProductSpec.withFilters(filter);
+
+        Page<Product> productsPage = productRepository.findAll(spec, pageable);
+
+        return productsPage.map(ProductResponseDTO::new);
+
     }
 }
 
