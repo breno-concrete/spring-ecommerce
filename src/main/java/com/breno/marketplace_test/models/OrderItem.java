@@ -1,29 +1,31 @@
 package com.breno.marketplace_test.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ordered_items")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @ToString.Exclude
     private Order order;
 
     @Column(nullable = false)
-    private Integer quanitty;
+    private Integer quantity;
 
     @Column(nullable = false)
     private BigDecimal pricePurchased;

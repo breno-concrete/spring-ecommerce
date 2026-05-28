@@ -2,9 +2,7 @@ package com.breno.marketplace_test.models;
 
 import com.breno.marketplace_test.enums.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,16 +13,16 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "orders")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column
-    private LocalDateTime creationTime;
+    @EqualsAndHashCode.Include
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
