@@ -29,6 +29,7 @@ public class JwtTokenProvider {
         return JWT.create()
                 .withIssuer("ecommerce")
                 .withSubject(email)
+                .withClaim("type", "access")
                 .withIssuedAt(Instant.now())
                 .withExpiresAt(Instant.now()
                         .plusMillis(jwtProperties.getExpiration()))
@@ -39,6 +40,7 @@ public class JwtTokenProvider {
         return JWT.create()
                 .withIssuer("ecommerce")
                 .withSubject(email)
+                .withClaim("type", "refresh")
                 .withIssuedAt(Instant.now())
                 .withExpiresAt(Instant.now()
                         .plusMillis(jwtProperties.getRefreshExpiration()))
@@ -49,11 +51,26 @@ public class JwtTokenProvider {
         try {
             return JWT.require(Algorithm.HMAC256(jwtProperties.getSecret()))
                     .withIssuer("ecommerce")
+                    .withClaim("type", "access")
                     .build()
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException e) {
             throw new InvalidTokenException("Token is invalid or expired");
+        }
+    }
+
+
+    public String validateRefreshTokenAndGetEmail(String token) {
+        try {
+            return JWT.require(Algorithm.HMAC256(jwtProperties.getSecret()))
+                    .withIssuer("ecommerce")
+                    .withClaim("type", "refresh") // EXIGE QUE SEJA UM REFRESH TOKEN
+                    .build()
+                    .verify(token)
+                    .getSubject();
+        } catch (JWTVerificationException e) {
+            throw new InvalidTokenException("Refresh Token inválido ou expirado");
         }
     }
 

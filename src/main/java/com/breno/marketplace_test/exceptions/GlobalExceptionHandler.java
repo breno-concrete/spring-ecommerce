@@ -1,6 +1,7 @@
 package com.breno.marketplace_test.exceptions;
 
 import com.breno.marketplace_test.dtos.ErrorResponseDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -17,6 +19,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExists(
             UserAlreadyExistsException ex
     ) {
+
+        log.warn("Tentativa de cadastro recusada. Usuário já existe: {}", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseDTO(
                         "CONFLICT",
@@ -29,6 +34,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleUserNotFound(
             UserNotFoundException ex
     ) {
+        log.warn("Busca por usuário falhou. Não encontrado: {}", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponseDTO(
                         "NOT_FOUND",
@@ -41,6 +48,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleInvalidCredentials(
             InvalidCredentialsException ex
     ) {
+
+        log.warn("Credenciais inválidas: {}", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponseDTO(
                         "UNAUTHORIZED",
@@ -53,6 +63,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleInvalidToken(
             InvalidTokenException ex
     ) {
+        log.warn("Acesso negado. Token JWT inválido: {}", ex.getMessage());
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponseDTO(
                         "UNAUTHORIZED",
@@ -65,11 +77,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleValidation(
             MethodArgumentNotValidException ex
     ) {
+
         String message = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining(", "));
+
+        log.warn("Erro de validação nos dados enviados pelo cliente: {}", message);
+
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponseDTO(
@@ -83,10 +99,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleGenericException(
             Exception ex
     ) {
+        log.error("ERRO INTERNO INESPERADO NO SERVIDOR: ", ex);
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponseDTO(
                         "INTERNAL_SERVER_ERROR",
-                        "An unexpected error occurred: " + ex.getMessage(),
+                        // Boa prática: NUNCA retorne o ex.getMessage() de um erro genérico pro usuário.
+                        // Pode vazar dados do banco ou detalhes da infraestrutura. Devolva uma mensagem fixa.
+                        "Ocorreu um erro inesperado no servidor. Tente novamente mais tarde.",
                         LocalDateTime.now()
                 ));
     }

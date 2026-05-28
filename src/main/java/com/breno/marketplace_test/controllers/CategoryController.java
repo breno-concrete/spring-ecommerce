@@ -8,11 +8,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("api/v1/categories")
 public class CategoryController {
@@ -26,7 +28,10 @@ public class CategoryController {
     @GetMapping
     @Operation(summary = "List all categories", description = "Returns a list of all categories")
     public List<Category> getCategories() {
-        return categoryService.findAll();
+        log.info("Requisição GET para listar todas as categorias");
+        List<Category> categories = categoryService.findAll();
+        log.info("Total de categorias retornadas: {}", categories.size());
+        return categories;
     }
 
     @PostMapping
@@ -36,7 +41,10 @@ public class CategoryController {
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO category) {
-        return ResponseEntity.ok(categoryService.saveCategory(category));
+        log.info("Requisição POST para criar nova categoria: {}", category.name());
+        CategoryResponseDTO response = categoryService.saveCategory(category);
+        log.info("Categoria criada com sucesso. ID: {}", response.id());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("{id}")
@@ -56,7 +64,10 @@ public class CategoryController {
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
     public ResponseEntity<CategoryResponseDTO> updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO category) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, category));
+        log.info("Requisição PUT para atualizar categoria com ID: {}", id);
+        CategoryResponseDTO response = categoryService.updateCategory(id, category);
+        log.info("Categoria com ID {} atualizada com sucesso", id);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("{id}")
@@ -66,7 +77,9 @@ public class CategoryController {
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
+        log.info("Requisição DELETE para deletar categoria com ID: {}", id);
         categoryService.deleteCategory(id);
+        log.info("Categoria com ID {} deletada com sucesso", id);
         return ResponseEntity.ok("Category deleted successfully!");
     }
 }
