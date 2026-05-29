@@ -15,8 +15,13 @@ public class ProductSpec {
             List<Predicate> predicates = new ArrayList<>();
 
 
+            // root é a sua tabela no banco
 
-            if(!filter.name().isBlank()) {
+            // cb construtor SQL
+
+            // seleção de WHERE, depois junta tudo com o AND
+
+            if(filter.name() != null && !filter.name().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("name")), "%" + filter.name().toLowerCase() + "%"));
             }
 
