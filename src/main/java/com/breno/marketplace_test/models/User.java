@@ -48,7 +48,7 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
-    private ShoppingCart cart;
+    private ShoppingCart cart = new ShoppingCart();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude

@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponseDTO(
-        Integer id,
-        LocalDateTime creationTime,
+        Long id,
+        LocalDateTime createdAt,
         OrderStatus orderStatus,
         Long userId,
         Long deliveryAddressId,

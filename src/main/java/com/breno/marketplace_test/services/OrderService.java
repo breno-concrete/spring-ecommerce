@@ -57,7 +57,7 @@ public class OrderService {
                 });
 
         Order order = new Order();
-        order.setCreationTime(LocalDateTime.now());
+        order.setCreatedAt(LocalDateTime.now());
         order.setOrderStatus(orderDTO.orderStatus());
         order.setUser(user);
         order.setDeliveryAddress(deliveryAddress);
@@ -67,7 +67,7 @@ public class OrderService {
                 .map(itemDTO -> {
                     OrderItem item = new OrderItem();
                     item.setOrder(order);
-                    item.setQuanitty(itemDTO.quantity());
+                    item.setQuantity(itemDTO.quantity());
                     item.setPricePurchased(itemDTO.pricePurchased());
                     return item;
                 })
@@ -111,7 +111,7 @@ public class OrderService {
                 .map(itemDTO -> {
                     OrderItem item = new OrderItem();
                     item.setOrder(order);
-                    item.setQuanitty(itemDTO.quantity());
+                    item.setQuantity(itemDTO.quantity());
                     item.setPricePurchased(itemDTO.pricePurchased());
                     return item;
                 })
@@ -140,14 +140,14 @@ public class OrderService {
                 .map(item -> new OrderItemDTO(
                         item.getId(),
                         item.getProduct().getId(),
-                        item.getQuanitty(),
+                        item.getQuantity(),
                         item.getPricePurchased()
                 ))
                 .collect(Collectors.toList());
 
         return new OrderResponseDTO(
                 order.getId(),
-                order.getCreationTime(),
+                order.getCreatedAt(),
                 order.getOrderStatus(),
                 order.getUser().getId(),
                 order.getDeliveryAddress().getId(),

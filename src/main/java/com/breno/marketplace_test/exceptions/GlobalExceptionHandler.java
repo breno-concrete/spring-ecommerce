@@ -1,9 +1,11 @@
 package com.breno.marketplace_test.exceptions;
 
 import com.breno.marketplace_test.dtos.ErrorResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -94,6 +96,36 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()
                 ));
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> accessDeniedException(
+            AccessDeniedException ex
+    ) {
+        log.warn("Acesso negado: {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponseDTO(
+                        "FORBIDDEN",
+                        "Você não tem permissão para acessar este recurso.",
+                        LocalDateTime.now()
+                ));
+    }
+
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponseDTO> illegalStateException(
+            IllegalStateException ex){
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                "Invalid State",
+                ex.getMessage(),
+                LocalDateTime.now()
+
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(
