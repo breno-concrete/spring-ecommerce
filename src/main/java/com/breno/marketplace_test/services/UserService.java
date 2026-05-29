@@ -23,7 +23,9 @@ public class UserService {
     private final UserRepository userRepository;
 
 
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    //precisa de final pois o @RequiredArgsConstructor vai reocnehcer ele e colocar no construtor
+    // Previne Bugs
 
     @Transactional
     public UserResponseDTO saveUser(UserRequestDTO dto){

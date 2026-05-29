@@ -6,6 +6,7 @@ import com.breno.marketplace_test.dtos.RefreshTokenResponseDTO;
 import com.breno.marketplace_test.dtos.UserRequestDTO;
 import com.breno.marketplace_test.enums.UserRole;
 import com.breno.marketplace_test.exceptions.InvalidTokenException;
+import com.breno.marketplace_test.exceptions.UserAlreadyExistsException;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.repositories.UserRepository;
 import com.breno.marketplace_test.security.JwtTokenProvider;
@@ -46,7 +47,7 @@ public class AuthService {
 
             log.warn("Tentativa de registro falhou. O email '{}' já está em uso.", dto.email());
 
-            throw new RuntimeException("Email already in use");
+            throw new UserAlreadyExistsException(dto.email());
         }
 
         User user = User.builder()

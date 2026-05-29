@@ -31,12 +31,6 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             String token = extractToken(request);
 
-            if (blacklistService.isBlacklisted(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token revoked");
-                return;
-            }
-
             if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) { //se possui token ou se não existe uma verificação anterior
                 String email = jwtTokenProvider.validateAndGetEmail(token);
                 SecurityUser userDetails = (SecurityUser) userDetailsService.loadUserByUsername(email);
@@ -50,6 +44,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication); //esse é o user logado nesse momento
             }
+
+
+            if (blacklistService.isBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token revoked");
+                return;
+            }
+
+
         } catch (InvalidTokenException e) {
             // Token inválido, continua sem autenticação
         }
