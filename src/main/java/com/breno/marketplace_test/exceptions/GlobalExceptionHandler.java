@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -111,6 +112,19 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponseDTO> httpMessageNotReadableException(
+            HttpMessageNotReadableException ex
+    ){
+        log.warn("Erro de leitura da mensagem HTTP: {}", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(
+                        "MALFORMED_JSON",
+                        "O corpo da requisição está malformado ou contém dados inválidos.",
+                        LocalDateTime.now()
+                ));
+    }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponseDTO> illegalStateException(
