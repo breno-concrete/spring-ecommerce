@@ -13,8 +13,9 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Address {
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true) //FAÇA COMPARAÇÃO APNAAS COM O ID DAQU, IGNORE OS CAMPOS
+//DA CLASSE MÃE
+public class Address extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,12 +46,5 @@ public class Address {
     @Column(nullable = false)
     private String state;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }
 

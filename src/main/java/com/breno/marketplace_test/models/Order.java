@@ -16,8 +16,8 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "orders")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Order {
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+public class Order extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -15,8 +15,8 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "carts")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class ShoppingCart {
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+public class ShoppingCart extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -30,11 +30,4 @@ public class ShoppingCart {
     @ToString.Exclude
     private List<CartItem> items = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }

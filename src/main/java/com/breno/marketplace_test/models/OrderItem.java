@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ordered_items")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class OrderItem {
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+public class OrderItem extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

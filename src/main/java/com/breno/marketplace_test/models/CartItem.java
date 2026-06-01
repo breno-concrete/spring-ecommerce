@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "cart_items")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CartItem {
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
+public class CartItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -30,13 +30,5 @@ public class CartItem {
 
     @Column(nullable = false)
     private Integer quantity;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
 }
