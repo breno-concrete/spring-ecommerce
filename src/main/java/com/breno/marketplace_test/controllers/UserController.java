@@ -2,6 +2,7 @@ package com.breno.marketplace_test.controllers;
 
 import com.breno.marketplace_test.dtos.MeResponseDTO;
 import com.breno.marketplace_test.dtos.UserRequestDTO;
+import com.breno.marketplace_test.dtos.UserResponseDTO;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.security.SecurityUser;
 import com.breno.marketplace_test.services.UserService;
@@ -14,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.http.ResponseEntity.ok;
 
 @Slf4j
@@ -25,7 +28,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> listUsers() {
+    public ResponseEntity<List<UserResponseDTO>> listUsers() {
         return ok(userService.findAll());
     }
 

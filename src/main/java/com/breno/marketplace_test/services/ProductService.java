@@ -3,6 +3,7 @@ package com.breno.marketplace_test.services;
 import com.breno.marketplace_test.dtos.ProductFilterDTO;
 import com.breno.marketplace_test.dtos.ProductRequestDTO;
 import com.breno.marketplace_test.dtos.ProductResponseDTO;
+import com.breno.marketplace_test.mappers.ProductMapper;
 import com.breno.marketplace_test.models.Category;
 import com.breno.marketplace_test.repositories.CategoryRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
@@ -24,6 +25,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
 
     public ProductResponseDTO saveProduct(ProductRequestDTO productDTO) {
@@ -43,8 +45,11 @@ public class ProductService {
         return convertToResponseDTO(savedProduct);
     }
 
-    public Product findProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
+    public ProductResponseDTO findProductById(Long id) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
+
+        return productMapper.toDTO(product);
+
 
     }
 

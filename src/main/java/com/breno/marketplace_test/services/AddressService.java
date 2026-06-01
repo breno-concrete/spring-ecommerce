@@ -2,6 +2,7 @@ package com.breno.marketplace_test.services;
 
 import com.breno.marketplace_test.dtos.AddressRequestDTO;
 import com.breno.marketplace_test.dtos.AddressResponseDTO;
+import com.breno.marketplace_test.mappers.AddressMapper;
 import com.breno.marketplace_test.models.Address;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.repositories.AddressRepository;
@@ -17,19 +18,23 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final AddressMapper addressMapper;
 
-    public AddressService(AddressRepository addressRepository, UserRepository userRepository) {
+    public AddressService(AddressRepository addressRepository, UserRepository userRepository, AddressMapper addressMapper) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.addressMapper = addressMapper;
     }
 
-    public List<Address> findAll() {
-        return addressRepository.findAll();
+    public List<AddressResponseDTO> findAll() {
+        List<Address> addresses = addressRepository.findAll();
+        return addressMapper.toDTOList(addresses);
     }
 
-    public Address findAddressById(Long id) {
-        return addressRepository.findById(id)
+    public AddressResponseDTO findAddressById(Long id) {
+        Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+        return addressMapper.toDTO(address);
     }
 
     public AddressResponseDTO saveAddress(AddressRequestDTO addressDTO) {

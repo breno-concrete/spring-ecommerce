@@ -27,9 +27,13 @@ public class AddressController {
 
     @GetMapping
     @Operation(summary = "List all addresses", description = "Returns a list of all addresses")
-    public List<Address> getAddresses() {
+    public List<AddressResponseDTO> getAddresses() {
         return addressService.findAll();
     }
+
+
+
+
 
     @PostMapping
     @Operation(summary = "Create Address", description = "Creates a new address")
@@ -44,15 +48,21 @@ public class AddressController {
         return ResponseEntity.ok(response);
     }
 
+
+
+
+
     @GetMapping("{id}")
     @Operation(summary = "Get Address", description = "Returns an address by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Address found"),
             @ApiResponse(responseCode = "404", description = "Address not found")
     })
-    public Address getAddressById(@PathVariable Long id) {
+    public AddressResponseDTO getAddressById(@PathVariable Long id) {
         return addressService.findAddressById(id);
     }
+
+
 
     @PutMapping("{id}")
     @Operation(summary = "Update Address", description = "Updates an address by ID")

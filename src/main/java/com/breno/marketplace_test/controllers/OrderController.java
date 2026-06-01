@@ -30,13 +30,13 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "List all orders", description = "Returns a list of all orders")
-    public ResponseEntity<Page<Order>> getOrders(
+    public ResponseEntity<Page<OrderResponseDTO>> getOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "creationTime"));
 
-        Page<Order> pedidosPaginados = orderService.findAll(pageable);
+        Page<OrderResponseDTO> pedidosPaginados = orderService.findAll(pageable);
         return ResponseEntity.ok(pedidosPaginados);
     }
 
@@ -59,7 +59,7 @@ public class OrderController {
             @ApiResponse(responseCode = "200", description = "Order found"),
             @ApiResponse(responseCode = "404", description = "Order not found")
     })
-    public Order getOrderById(@PathVariable Integer id) {
+    public OrderResponseDTO getOrderById(@PathVariable Integer id) {
         return orderService.findOrderById(id);
     }
 

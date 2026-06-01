@@ -3,6 +3,7 @@ package com.breno.marketplace_test.services;
 import com.breno.marketplace_test.dtos.OrderItemDTO;
 import com.breno.marketplace_test.dtos.OrderRequestDTO;
 import com.breno.marketplace_test.dtos.OrderResponseDTO;
+import com.breno.marketplace_test.mappers.OrderMapper;
 import com.breno.marketplace_test.models.*;
 import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.OrderRepository;
@@ -25,21 +26,34 @@ public class OrderService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
+    private final OrderMapper orderMapper;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, AddressRepository addressRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, AddressRepository addressRepository, ProductRepository productRepository, OrderMapper orderMapper) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
+        this.orderMapper = orderMapper;
     }
 
-    public Page<Order> findAll(Pageable pageable) {
-        return orderRepository.findAll(pageable);
+    public Page<OrderResponseDTO> findAll(Pageable pageable) {
+        // 1. Busca a página de entidades do banco
+        Page<Order> ordersPage = orderRepository.findAll(pageable);
+
+        // 2. Usa o .map() da própria página para converter cada item usando o seu Mapper
+        return ordersPage.map(orderMapper::toDTO);
     }
 
-    public Order findOrderById(Integer id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+    public OrderResponseDTO findOrderById(Integer id) {
+        log.info("Buscando pedido com ID: {}", id);
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Pedido com ID {} não encontrado", id);
+                    return new IllegalStateException(id + " not found!");
+                });
+        return convertToResponseDTO(order);
+
     }
 
     public OrderResponseDTO saveOrder(OrderRequestDTO orderDTO) {

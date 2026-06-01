@@ -2,6 +2,7 @@ package com.breno.marketplace_test.services;
 
 import com.breno.marketplace_test.dtos.CategoryRequestDTO;
 import com.breno.marketplace_test.dtos.CategoryResponseDTO;
+import com.breno.marketplace_test.mappers.CategoryMapper;
 import com.breno.marketplace_test.models.Category;
 import com.breno.marketplace_test.repositories.CategoryRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,18 +15,22 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
+        this.categoryMapper = categoryMapper;
     }
 
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    public List<CategoryResponseDTO> findAll() {
+        log.info("Buscando todas as categorias");
+        List<Category> categories = categoryRepository.findAll();
+        return categoryMapper.toDTOList(categories);
     }
 
-    public Category findCategoryById(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+    public CategoryResponseDTO findCategoryById(Long id) {
+        return categoryMapper.toDTO(categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException(id + " not found!")));
     }
 
     public CategoryResponseDTO saveCategory(CategoryRequestDTO categoryDTO) {

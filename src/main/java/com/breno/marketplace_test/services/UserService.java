@@ -47,8 +47,8 @@ public class UserService {
         return toResponseDTO(savedUser);
     }
 
-    public List<User> findAll(){
-        return userRepository.findAll();
+    public List<UserResponseDTO> findAll(){
+        return userRepository.findAll().stream().map(this::toResponseDTO).toList();
     }
 
     public User findById(Long id){

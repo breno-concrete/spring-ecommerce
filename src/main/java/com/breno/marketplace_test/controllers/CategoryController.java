@@ -25,14 +25,16 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+
+
     @GetMapping
     @Operation(summary = "List all categories", description = "Returns a list of all categories")
-    public List<Category> getCategories() {
+    public List<CategoryResponseDTO> getCategories() {
         log.info("Requisição GET para listar todas as categorias");
-        List<Category> categories = categoryService.findAll();
-        log.info("Total de categorias retornadas: {}", categories.size());
-        return categories;
+        return categoryService.findAll();
     }
+
+
 
     @PostMapping
     @Operation(summary = "Create Category", description = "Creates a new category")
@@ -53,7 +55,7 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Category found"),
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
-    public Category getCategoryById(@PathVariable Long id) {
+    public CategoryResponseDTO getCategoryById(@PathVariable Long id) {
         return categoryService.findCategoryById(id);
     }
 

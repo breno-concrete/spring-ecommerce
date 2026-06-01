@@ -56,7 +56,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Product found"),
             @ApiResponse(responseCode = "404", description = "Product not found")
     })
-    public Product getProductById(@PathVariable Long id){
+    public ProductResponseDTO getProductById(@PathVariable Long id){
         return productService.findProductById(id);
     }
 
