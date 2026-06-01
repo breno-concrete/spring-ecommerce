@@ -3,12 +3,10 @@ package com.breno.marketplace_test.services;
 import com.breno.marketplace_test.dtos.OrderItemDTO;
 import com.breno.marketplace_test.dtos.OrderRequestDTO;
 import com.breno.marketplace_test.dtos.OrderResponseDTO;
-import com.breno.marketplace_test.models.Address;
-import com.breno.marketplace_test.models.Order;
-import com.breno.marketplace_test.models.OrderItem;
-import com.breno.marketplace_test.models.User;
+import com.breno.marketplace_test.models.*;
 import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.OrderRepository;
+import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page; // USE ESTE
@@ -26,11 +24,13 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
+    private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, AddressRepository addressRepository) {
+    public OrderService(OrderRepository orderRepository, UserRepository userRepository, AddressRepository addressRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.addressRepository = addressRepository;
+        this.productRepository = productRepository;
     }
 
     public Page<Order> findAll(Pageable pageable) {
@@ -57,16 +57,25 @@ public class OrderService {
                 });
 
         Order order = new Order();
-        order.setCreatedAt(LocalDateTime.now());
+
         order.setOrderStatus(orderDTO.orderStatus());
         order.setUser(user);
         order.setDeliveryAddress(deliveryAddress);
 
+
         // Converter OrderItemDTO para OrderItem
         List<OrderItem> items = orderDTO.items().stream()
                 .map(itemDTO -> {
+
+                    Product product = productRepository.findById(itemDTO.productId())
+                            .orElseThrow(() -> {
+                                log.warn("Produto com ID {} não encontrado ao salvar pedido", itemDTO.productId());
+                                return new IllegalStateException("Product " + itemDTO.productId() + " not found!");
+                            });
+
                     OrderItem item = new OrderItem();
                     item.setOrder(order);
+                    item.setProduct(product);
                     item.setQuantity(itemDTO.quantity());
                     item.setPricePurchased(itemDTO.pricePurchased());
                     return item;
