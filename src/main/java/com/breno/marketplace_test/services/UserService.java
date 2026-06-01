@@ -4,6 +4,8 @@ import com.breno.marketplace_test.dtos.MeResponseDTO;
 import com.breno.marketplace_test.dtos.UserRequestDTO;
 import com.breno.marketplace_test.dtos.UserResponseDTO;
 import com.breno.marketplace_test.exceptions.UserAlreadyExistsException;
+import com.breno.marketplace_test.models.CartItem;
+import com.breno.marketplace_test.models.ShoppingCart;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.enums.UserRole;
 import com.breno.marketplace_test.repositories.UserRepository;
@@ -41,6 +43,10 @@ public class UserService {
                 .role(UserRole.USER)
                 .passwordHash(passwordEncoder.encode(dto.password()))
                 .build();
+
+        ShoppingCart cart = new ShoppingCart();
+        cart.setUser(user); // O Carrinho conhece quem é o seu dono (Isso preenche a coluna user_id)
+        user.setCart(cart);
 
         User savedUser = userRepository.save(user);
         log.info("Novo usuário registrado com sucesso: {} (ID: {})", dto.email(), savedUser.getId());

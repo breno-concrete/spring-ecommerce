@@ -47,8 +47,7 @@ public class User extends BaseEntity {
     private List<Address> addresses = new ArrayList<>();
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private ShoppingCart cart = new ShoppingCart();
+    private ShoppingCart cart;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
