@@ -6,6 +6,7 @@ import com.breno.marketplace_test.models.Product;
 import com.breno.marketplace_test.models.ProductImage;
 import com.breno.marketplace_test.repositories.ProductImageRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
+import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +24,18 @@ public class ProductImageService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ProductImage> findAll() {
         return productImageRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public ProductImage findProductImageById(Long id) {
         return productImageRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!"));
     }
 
+    @Transactional
     public ProductImageResponseDTO saveProductImage(ProductImageRequestDTO imageDTO) {
         log.info("Salvando nova imagem para o produto: {}", imageDTO.productId());
         Product product = productRepository.findById(imageDTO.productId())
@@ -50,6 +54,7 @@ public class ProductImageService {
         return convertToResponseDTO(savedImage);
     }
 
+    @Transactional
     public ProductImageResponseDTO updateProductImage(Long id, ProductImageRequestDTO imageDTO) {
         log.info("Atualizando imagem de produto com ID: {}", id);
         ProductImage image = productImageRepository.findById(id)
@@ -72,6 +77,7 @@ public class ProductImageService {
         return convertToResponseDTO(updatedImage);
     }
 
+    @Transactional
     public void deleteProductImage(Long id) {
         log.info("Deletando imagem de produto com ID: {}", id);
         ProductImage image = productImageRepository.findById(id)

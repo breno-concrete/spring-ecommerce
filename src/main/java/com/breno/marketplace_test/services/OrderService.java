@@ -9,6 +9,7 @@ import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.OrderRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page; // USE ESTE
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class OrderService {
         this.orderMapper = orderMapper;
     }
 
+    @Transactional(readOnly = true)
     public Page<OrderResponseDTO> findAll(Pageable pageable) {
         // 1. Busca a página de entidades do banco
         Page<Order> ordersPage = orderRepository.findAll(pageable);
@@ -44,6 +46,7 @@ public class OrderService {
         return ordersPage.map(orderMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
     public OrderResponseDTO findOrderById(Integer id) {
         log.info("Buscando pedido com ID: {}", id);
 
@@ -56,6 +59,7 @@ public class OrderService {
 
     }
 
+    @Transactional
     public OrderResponseDTO saveOrder(OrderRequestDTO orderDTO) {
         log.info("Salvando novo pedido para o usuário: {}", orderDTO.userId());
         User user = userRepository.findById(orderDTO.userId())
@@ -104,6 +108,7 @@ public class OrderService {
         return convertToResponseDTO(savedOrder);
     }
 
+    @Transactional
     public OrderResponseDTO updateOrder(Integer id, OrderRequestDTO orderDTO) {
         log.info("Atualizando pedido com ID: {}", id);
         Order order = orderRepository.findById(id)
@@ -147,6 +152,7 @@ public class OrderService {
         return convertToResponseDTO(updatedOrder);
     }
 
+    @Transactional
     public void deleteOrder(Integer id) {
         log.info("Deletando pedido com ID: {}", id);
         Order order = orderRepository.findById(id)

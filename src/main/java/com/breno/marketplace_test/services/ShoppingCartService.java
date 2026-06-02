@@ -11,6 +11,7 @@ import com.breno.marketplace_test.repositories.CartItemRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.repositories.ShoppingCartRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -34,15 +35,18 @@ public class ShoppingCartService {
         this.productRepository = productRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<ShoppingCart> findAll() {
         return shoppingCartRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public ShoppingCart findCartById(Long id) {
         return shoppingCartRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!"));
     }
 
+    @Transactional
     public ShoppingCartResponseDTO saveCart(ShoppingCartRequestDTO cartDTO) {
         log.info("Salvando novo carrinho para o usuário: {}", cartDTO.userId());
         User user = userRepository.findById(cartDTO.userId())
@@ -79,6 +83,7 @@ public class ShoppingCartService {
         return convertToResponseDTO(savedCart);
     }
 
+    @Transactional
     public ShoppingCartResponseDTO updateCart(Long id, ShoppingCartRequestDTO cartDTO) {
         log.info("Atualizando carrinho com ID: {}", id);
         ShoppingCart cart = shoppingCartRepository.findById(id)
@@ -120,6 +125,7 @@ public class ShoppingCartService {
         return convertToResponseDTO(updatedCart);
     }
 
+    @Transactional
     public void deleteCart(Long id) {
         log.info("Deletando carrinho com ID: {}", id);
         ShoppingCart cart = shoppingCartRepository.findById(id)

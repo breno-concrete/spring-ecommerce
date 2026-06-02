@@ -9,6 +9,7 @@ import com.breno.marketplace_test.repositories.CategoryRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.models.Product;
 import com.breno.marketplace_test.repositories.spec.ProductSpec;
+import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
 
-
+    @Transactional
     public ProductResponseDTO saveProduct(ProductRequestDTO productDTO) {
         log.info("Salvando novo produto: {}", productDTO.name());
         Product product = new Product();
@@ -45,6 +46,7 @@ public class ProductService {
         return convertToResponseDTO(savedProduct);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponseDTO findProductById(Long id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + " not found!") );
 
@@ -53,6 +55,7 @@ public class ProductService {
 
     }
 
+    @Transactional
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO product) {
         log.info("Atualizando produto com ID: {}", id);
         Product newProduct = productRepository.findById(id)
@@ -72,6 +75,7 @@ public class ProductService {
 
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
         log.info("Deletando produto com ID: {}", id);
         Product product = productRepository.findById(id)
@@ -100,7 +104,8 @@ public class ProductService {
         );
     }
 
-    private Category findCategoryOrThrow(Long categoryId) {
+    @Transactional(readOnly = true)
+    public Category findCategoryOrThrow(Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> {
                     log.warn("Categoria com ID {} não encontrada", categoryId);
@@ -108,7 +113,7 @@ public class ProductService {
                 });
     }
 
-
+    @Transactional(readOnly = true)
     public Page<ProductResponseDTO> searchProducts(ProductFilterDTO filter, Pageable pageable){
         Specification<Product> spec = ProductSpec.withFilters(filter);
 

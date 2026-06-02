@@ -5,6 +5,7 @@ import com.breno.marketplace_test.dtos.CategoryResponseDTO;
 import com.breno.marketplace_test.mappers.CategoryMapper;
 import com.breno.marketplace_test.models.Category;
 import com.breno.marketplace_test.repositories.CategoryRepository;
+import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +23,20 @@ public class CategoryService {
         this.categoryMapper = categoryMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryResponseDTO> findAll() {
         log.info("Buscando todas as categorias");
         List<Category> categories = categoryRepository.findAll();
         return categoryMapper.toDTOList(categories);
     }
 
+    @Transactional(readOnly = true)
     public CategoryResponseDTO findCategoryById(Long id) {
         return categoryMapper.toDTO(categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!")));
     }
 
+    @Transactional
     public CategoryResponseDTO saveCategory(CategoryRequestDTO categoryDTO) {
         log.info("Salvando nova categoria: {}", categoryDTO.name());
         Category category = new Category();
@@ -43,6 +47,7 @@ public class CategoryService {
         return convertToResponseDTO(savedCategory);
     }
 
+    @Transactional
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryDTO) {
         log.info("Atualizando categoria com ID: {}", id);
         Category category = categoryRepository.findById(id)
@@ -58,6 +63,7 @@ public class CategoryService {
         return convertToResponseDTO(updatedCategory);
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         log.info("Deletando categoria com ID: {}", id);
         Category category = categoryRepository.findById(id)

@@ -7,6 +7,7 @@ import com.breno.marketplace_test.models.Address;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,17 +27,20 @@ public class AddressService {
         this.addressMapper = addressMapper;
     }
 
+    @Transactional(readOnly = true)
     public List<AddressResponseDTO> findAll() {
         List<Address> addresses = addressRepository.findAll();
         return addressMapper.toDTOList(addresses);
     }
 
+    @Transactional(readOnly = true)
     public AddressResponseDTO findAddressById(Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!"));
         return addressMapper.toDTO(address);
     }
 
+    @Transactional
     public AddressResponseDTO saveAddress(AddressRequestDTO addressDTO) {
         log.info("Salvando novo endereço para o usuário: {}", addressDTO.userId());
         User user = userRepository.findById(addressDTO.userId())
@@ -59,7 +63,7 @@ public class AddressService {
         log.info("Endereço salvo com sucesso. ID: {}, CEP: {}", savedAddress.getId(), savedAddress.getZipCode());
         return convertToResponseDTO(savedAddress);
     }
-
+    @Transactional
     public AddressResponseDTO updateAddress(Long id, AddressRequestDTO addressDTO) {
         log.info("Atualizando endereço com ID: {}", id);
         Address address = addressRepository.findById(id)
@@ -87,7 +91,7 @@ public class AddressService {
         log.info("Endereço com ID {} atualizado com sucesso", id);
         return convertToResponseDTO(updatedAddress);
     }
-
+    @Transactional
     public void deleteAddress(Long id) {
         log.info("Deletando endereço com ID: {}", id);
         Address address = addressRepository.findById(id)
