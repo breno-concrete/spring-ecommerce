@@ -15,7 +15,10 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        @Index(name = "idx_orders_user_id", columnList = "user_id"),
+        @Index(name = "idx_order_status", columnList = "orderStatus")
+})
 @EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class Order extends BaseEntity{
 
