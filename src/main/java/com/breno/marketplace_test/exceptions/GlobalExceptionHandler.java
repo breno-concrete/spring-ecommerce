@@ -153,4 +153,33 @@ public class GlobalExceptionHandler {
                 request
         );
     }
+
+    // Tratando todas as exceções de "Recurso não encontrado"
+    @ExceptionHandler({
+            ProductNotFoundException.class,
+            OrderNotFoundException.class,
+            CategoryNotFoundException.class
+    })
+    public ProblemDetail handleResourceNotFound(RuntimeException ex, HttpServletRequest request) {
+        log.warn("Recurso não encontrado: {}", ex.getMessage());
+        return buildProblemDetail(
+                HttpStatus.NOT_FOUND,
+                "Recurso não encontrado",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/not-found",
+                request
+        );
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ProblemDetail handleInsufficientStock(InsufficientStockException ex, HttpServletRequest request) {
+        log.warn("Regra de negócio violada: {}", ex.getMessage());
+        return buildProblemDetail(
+                HttpStatus.UNPROCESSABLE_ENTITY, //422
+                "Estoque Insuficiente",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/insufficient-stock",
+                request
+        );
+    }
 }
