@@ -1,6 +1,9 @@
 spring:
   application:
     name: marketplace-test
+  mvc:
+    problemdetails:
+      enabled: true
   flyway:
     enabled: true
     baseline-on-migrate: true

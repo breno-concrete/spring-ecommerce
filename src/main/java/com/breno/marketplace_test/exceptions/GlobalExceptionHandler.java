@@ -1,159 +1,156 @@
 package com.breno.marketplace_test.exceptions;
 
-import com.breno.marketplace_test.dtos.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // --- Método Auxiliar para DRY (Don't Repeat Yourself) ---
+    private ProblemDetail buildProblemDetail(HttpStatus status, String title, String detail, String typeUri, HttpServletRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setTitle(title);
+        problemDetail.setType(URI.create(typeUri));
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+        problemDetail.setProperty("timestamp", LocalDateTime.now());
+        return problemDetail;
+    }
+
+    // --- Tratadores de Exceções Customizadas ---
+
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleUserAlreadyExists(
-            UserAlreadyExistsException ex
-    ) {
-
+    public ProblemDetail handleUserAlreadyExists(UserAlreadyExistsException ex, HttpServletRequest request) {
         log.warn("Tentativa de cadastro recusada. Usuário já existe: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorResponseDTO(
-                        "CONFLICT",
-                        ex.getMessage(),
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.CONFLICT,
+                "Conflito de Dados",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/user-conflict",
+                request
+        );
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleUserNotFound(
-            UserNotFoundException ex
-    ) {
+    public ProblemDetail handleUserNotFound(UserNotFoundException ex, HttpServletRequest request) {
         log.warn("Busca por usuário falhou. Não encontrado: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponseDTO(
-                        "NOT_FOUND",
-                        ex.getMessage(),
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.NOT_FOUND,
+                "Usuário não encontrado",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/not-found",
+                request
+        );
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ErrorResponseDTO> handleInvalidCredentials(
-            InvalidCredentialsException ex
-    ) {
-
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex, HttpServletRequest request) {
         log.warn("Credenciais inválidas: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponseDTO(
-                        "UNAUTHORIZED",
-                        ex.getMessage(),
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Credenciais inválidas",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/invalid-credentials",
+                request
+        );
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponseDTO> handleInvalidToken(
-            InvalidTokenException ex
-    ) {
+    public ProblemDetail handleInvalidToken(InvalidTokenException ex, HttpServletRequest request) {
         log.warn("Acesso negado. Token JWT inválido: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponseDTO(
-                        "UNAUTHORIZED",
-                        ex.getMessage(),
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.UNAUTHORIZED,
+                "Token inválido",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/invalid-token",
+                request
+        );
     }
 
+    // --- Tratadores de Exceções Padrão do Spring/Java ---
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidation(
-            MethodArgumentNotValidException ex
-    ) {
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        log.warn("Erro de validação nos dados enviados pelo cliente.");
 
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Erro de Validação",
+                "Um ou mais campos estão inválidos. Verifique a lista de erros.",
+                "https://api.marketplace.com/errors/validation-error",
+                request
+        );
 
-        log.warn("Erro de validação nos dados enviados pelo cliente: {}", message);
+        // Gera a lista estruturada de erros para o Frontend ler facilmente
+        List<Map<String, String>> camposInvalidos = ex.getBindingResult().getFieldErrors().stream()
+                .map(erro -> Map.of(
+                        "campo", erro.getField(),
+                        "motivo", erro.getDefaultMessage() != null ? erro.getDefaultMessage() : "Erro de validação"
+                ))
+                .toList();
 
+        problemDetail.setProperty("invalidParams", camposInvalidos);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponseDTO(
-                        "VALIDATION_ERROR",
-                        message,
-                        LocalDateTime.now()
-                ));
+        return problemDetail;
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponseDTO> accessDeniedException(
-            AccessDeniedException ex
-    ) {
+    public ProblemDetail accessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
         log.warn("Acesso negado: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponseDTO(
-                        "FORBIDDEN",
-                        "Você não tem permissão para acessar este recurso.",
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "Acesso negado",
+                "Você não tem permissão para acessar este recurso.",
+                "https://api.marketplace.com/errors/access-denied",
+                request
+        );
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponseDTO> httpMessageNotReadableException(
-            HttpMessageNotReadableException ex
-    ){
+    public ProblemDetail httpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
         log.warn("Erro de leitura da mensagem HTTP: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponseDTO(
-                        "MALFORMED_JSON",
-                        "O corpo da requisição está malformado ou contém dados inválidos.",
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "JSON Malformado",
+                "O corpo da requisição está malformado ou contém dados inválidos.",
+                "https://api.marketplace.com/errors/malformed-json",
+                request
+        );
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponseDTO> illegalStateException(
-            IllegalStateException ex){
-        ErrorResponseDTO error = new ErrorResponseDTO(
-                "Invalid State",
+    public ProblemDetail illegalStateException(IllegalStateException ex, HttpServletRequest request) {
+        log.warn("Estado inválido: {}", ex.getMessage());
+        return buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Estado inválido",
                 ex.getMessage(),
-                LocalDateTime.now()
-
+                "https://api.marketplace.com/errors/invalid-state",
+                request
         );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDTO> handleGenericException(
-            Exception ex
-    ) {
+    public ProblemDetail handleGenericException(Exception ex, HttpServletRequest request) {
         log.error("ERRO INTERNO INESPERADO NO SERVIDOR: ", ex);
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponseDTO(
-                        "INTERNAL_SERVER_ERROR",
-                        // Boa prática: NUNCA retorne o ex.getMessage() de um erro genérico pro usuário.
-                        // Pode vazar dados do banco ou detalhes da infraestrutura. Devolva uma mensagem fixa.
-                        "Ocorreu um erro inesperado no servidor. Tente novamente mais tarde.",
-                        LocalDateTime.now()
-                ));
+        return buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro Interno",
+                "Ocorreu um erro inesperado no servidor. Tente novamente mais tarde.",
+                "https://api.marketplace.com/errors/internal-error",
+                request
+        );
     }
 }
