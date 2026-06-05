@@ -9,6 +9,8 @@ import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.OrderRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import com.breno.marketplace_test.security.SecurityUtil;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page; // USE ESTE
@@ -55,6 +57,8 @@ public class OrderService {
                     log.warn("Pedido com ID {} não encontrado", id);
                     return new IllegalStateException(id + " not found!");
                 });
+        validateOwnership(order);
+
         return convertToResponseDTO(order);
 
     }
@@ -129,6 +133,9 @@ public class OrderService {
                     return new IllegalStateException("Address " + orderDTO.deliveryAddressId() + " not found!");
                 });
 
+        validateOwnership(order);
+
+
         order.setOrderStatus(orderDTO.orderStatus());
         order.setUser(user);
         order.setDeliveryAddress(deliveryAddress);
@@ -160,8 +167,21 @@ public class OrderService {
                     log.warn("Pedido com ID {} não encontrado para deleção", id);
                     return new IllegalStateException(id + " not found!");
                 });
+
+        validateOwnership(order);
+
         orderRepository.delete(order);
         log.info("Pedido com ID {} deletado com sucesso", id);
+    }
+
+    private void validateOwnership(Order order){
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Long orderId = order.getUser().getId();
+
+        if(!currentUserId.equals(orderId)){
+            log.warn("Usuário com ID {} tentou acessar pedido com ID {} que pertence ao usuário com ID {}", currentUserId, order.getId(), orderId);
+            throw new AccessDeniedException("You do not have permission to access this order");
+        }
     }
 
     private OrderResponseDTO convertToResponseDTO(Order order) {

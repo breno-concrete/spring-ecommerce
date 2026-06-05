@@ -106,6 +106,18 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(ForbiddenAccessException.class)
+    public ProblemDetail handleForbiddenAccess(ForbiddenAccessException ex, HttpServletRequest request) {
+        log.warn("Acesso proibido por validação de ownership: {}", ex.getMessage());
+        return buildProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "Acesso proibido",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/forbidden",
+                request
+        );
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail accessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
         log.warn("Acesso negado: {}", ex.getMessage());

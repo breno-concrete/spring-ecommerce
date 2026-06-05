@@ -3,14 +3,13 @@ package com.breno.marketplace_test.services;
 import com.breno.marketplace_test.dtos.CartItemDTO;
 import com.breno.marketplace_test.dtos.ShoppingCartRequestDTO;
 import com.breno.marketplace_test.dtos.ShoppingCartResponseDTO;
-import com.breno.marketplace_test.models.CartItem;
-import com.breno.marketplace_test.models.Product;
-import com.breno.marketplace_test.models.ShoppingCart;
-import com.breno.marketplace_test.models.User;
+import com.breno.marketplace_test.models.*;
 import com.breno.marketplace_test.repositories.CartItemRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.repositories.ShoppingCartRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import com.breno.marketplace_test.security.SecurityUtil;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,6 +57,8 @@ public class ShoppingCartService {
         ShoppingCart cart = new ShoppingCart();
         cart.setUser(user);
 
+        validateOwnership(cart);
+
         // Converter CartItemDTO para CartItem
         List<CartItem> items = cartDTO.items().stream()
                 .map(itemDTO -> {
@@ -100,6 +101,8 @@ public class ShoppingCartService {
 
         cart.setUser(user);
 
+        validateOwnership(cart);
+
         // Atualizar itens
         cart.getItems().clear();
         List<CartItem> items = cartDTO.items().stream()
@@ -133,8 +136,21 @@ public class ShoppingCartService {
                     log.warn("Carrinho com ID {} não encontrado para deleção", id);
                     return new IllegalStateException(id + " not found!");
                 });
+        validateOwnership(cart);
+
         shoppingCartRepository.delete(cart);
         log.info("Carrinho com ID {} deletado com sucesso", id);
+    }
+
+
+    private void validateOwnership(ShoppingCart cart){
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Long cartId = cart.getUser().getId();
+
+        if(!currentUserId.equals(cartId)){
+            log.warn("Usuário com ID {} tentou acessar carrinho com ID {} que pertence ao usuário com ID {}", currentUserId, cart.getId(), cartId);
+            throw new AccessDeniedException("You do not have permission to access this cart");
+        }
     }
 
     private ShoppingCartResponseDTO convertToResponseDTO(ShoppingCart cart) {

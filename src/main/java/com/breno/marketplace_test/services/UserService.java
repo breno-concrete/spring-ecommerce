@@ -9,9 +9,13 @@ import com.breno.marketplace_test.models.ShoppingCart;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.enums.UserRole;
 import com.breno.marketplace_test.repositories.UserRepository;
+import com.breno.marketplace_test.security.SecurityUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.breno.marketplace_test.exceptions.ForbiddenAccessException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,12 +62,14 @@ public class UserService {
     }
 
     public User findById(Long id){
+        validateSelfOrAdmin(id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!"));
     }
 
     @Transactional
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto){
+        validateSelfOrAdmin(id);
         log.info("Atualizando usuário com ID: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
@@ -92,6 +98,7 @@ public class UserService {
     }
 
     public void deleteUser(Long id){
+        validateSelfOrAdmin(id);
         log.info("Deletando usuário com ID: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
@@ -110,6 +117,22 @@ public class UserService {
         );
     }
 
+    private void validateSelfOrAdmin(Long id) {
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+
+        if (currentUserId.equals(id)) {
+            return; // é o próprio user, OK
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            throw new ForbiddenAccessException("Você não pode acessar o perfil de outro usuário");
+        }
+    }
     public MeResponseDTO findByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("User with email " + email + " not found!"));

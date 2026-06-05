@@ -7,6 +7,8 @@ import com.breno.marketplace_test.models.Address;
 import com.breno.marketplace_test.models.User;
 import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
+import com.breno.marketplace_test.security.SecurityUtil;
+import com.breno.marketplace_test.exceptions.ForbiddenAccessException;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ public class AddressService {
     public AddressResponseDTO findAddressById(Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!"));
+
+        validateOwnership(address);
         return addressMapper.toDTO(address);
     }
 
@@ -49,6 +53,8 @@ public class AddressService {
                     return new IllegalStateException("User " + addressDTO.userId() + " not found!");
                 });
 
+
+
         Address address = new Address();
         address.setUser(user);
         address.setZipCode(addressDTO.zipCode());
@@ -58,6 +64,7 @@ public class AddressService {
         address.setNeighborhood(addressDTO.neighborhood());
         address.setCity(addressDTO.city());
         address.setState(addressDTO.state());
+
 
         Address savedAddress = addressRepository.save(address);
         log.info("Endereço salvo com sucesso. ID: {}, CEP: {}", savedAddress.getId(), savedAddress.getZipCode());
@@ -77,6 +84,7 @@ public class AddressService {
                     log.warn("Usuário com ID {} não encontrado ao tentar atualizar endereço", addressDTO.userId());
                     return new IllegalStateException("User " + addressDTO.userId() + " not found!");
                 });
+        validateOwnership(address);
 
         address.setUser(user);
         address.setZipCode(addressDTO.zipCode());
@@ -99,8 +107,20 @@ public class AddressService {
                     log.warn("Endereço com ID {} não encontrado para deleção", id);
                     return new IllegalStateException(id + " not found!");
                 });
+        validateOwnership(address);
         addressRepository.delete(address);
         log.info("Endereço com ID {} deletado com sucesso", id);
+    }
+
+
+    private void validateOwnership(Address address){
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+        Long addressOwnerId = address.getUser().getId();
+
+        if(!currentUserId.equals(addressOwnerId)){
+            log.warn("Usuário com ID {} tentou acessar endereço com ID {} que pertence ao usuário com ID {}", currentUserId, address.getId(), addressOwnerId);
+            throw new ForbiddenAccessException("Este endereço não pertence ao seu usuário");
+        }
     }
 
     private AddressResponseDTO convertToResponseDTO(Address address) {
