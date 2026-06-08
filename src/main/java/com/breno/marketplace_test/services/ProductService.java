@@ -34,7 +34,7 @@ public class ProductService {
         Product product = new Product();
         product.setName(productDTO.name());
         product.setPrice(productDTO.price());
-        product.setUnit(productDTO.unit());
+        product.setStockQuantity(productDTO.unit());;
 
 
         product.setCategory(findCategoryOrThrow(productDTO.category_id()));
@@ -65,7 +65,7 @@ public class ProductService {
                 });
         newProduct.setName(product.name());
         newProduct.setPrice(product.price());
-        newProduct.setUnit(product.unit());
+        newProduct.setStockQuantity(product.unit());
 
         newProduct.setCategory(findCategoryOrThrow(product.category_id()));
 
@@ -97,7 +97,7 @@ public class ProductService {
                 product.getId(),
                 product.getName(),
                 product.getPrice(),
-                product.getUnit(),
+                product.getStockQuantity(),
                 product.getCategory().getId(),
                 product.getCategory().getName(),
                 imagesUrls

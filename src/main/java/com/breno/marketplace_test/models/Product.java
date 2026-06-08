@@ -1,5 +1,6 @@
 package com.breno.marketplace_test.models;
 
+import com.breno.marketplace_test.exceptions.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,14 +35,24 @@ public class Product extends BaseEntity {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private Integer unit;
+    private Integer stockQuantity;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<ProductImage> images = new ArrayList<>();
 
+
+
+    public void decreaseStock(int qnty){
+        if (qnty > 0 && stockQuantity >= qnty) {
+            stockQuantity -= qnty;
+        } else {
+            throw new InsufficientStockException("Invalid quantity to decrease");
+        }
+    }
 }

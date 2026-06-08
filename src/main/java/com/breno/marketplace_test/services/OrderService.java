@@ -5,11 +5,11 @@ import com.breno.marketplace_test.dtos.OrderRequestDTO;
 import com.breno.marketplace_test.dtos.OrderResponseDTO;
 import com.breno.marketplace_test.mappers.OrderMapper;
 import com.breno.marketplace_test.models.*;
-import com.breno.marketplace_test.repositories.AddressRepository;
-import com.breno.marketplace_test.repositories.OrderRepository;
-import com.breno.marketplace_test.repositories.ProductRepository;
-import com.breno.marketplace_test.repositories.UserRepository;
+import com.breno.marketplace_test.repositories.*;
 import com.breno.marketplace_test.security.SecurityUtil;
+import jakarta.persistence.OptimisticLockException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -30,14 +31,9 @@ public class OrderService {
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
+    private final ShoppingCartRepository shoppingCartRepository;
 
-    public OrderService(OrderRepository orderRepository, UserRepository userRepository, AddressRepository addressRepository, ProductRepository productRepository, OrderMapper orderMapper) {
-        this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
-        this.addressRepository = addressRepository;
-        this.productRepository = productRepository;
-        this.orderMapper = orderMapper;
-    }
+
 
     @Transactional(readOnly = true)
     public Page<OrderResponseDTO> findAll(Pageable pageable) {
@@ -98,13 +94,26 @@ public class OrderService {
                     OrderItem item = new OrderItem();
                     item.setOrder(order);
                     item.setProduct(product);
+
+                    if(itemDTO.quantity() > product.getStockQuantity()){
+                        log.warn("Quantidade solicitada ({}) para o produto com ID {} excede o estoque disponível ({})",
+                                itemDTO.quantity(), itemDTO.productId(), product.getStockQuantity());
+                        throw new IllegalStateException("Requested quantity exceeds available stock for product " + itemDTO.productId());
+                    }
+
                     item.setQuantity(itemDTO.quantity());
+
                     item.setPricePurchased(itemDTO.pricePurchased());
+
+                    product.decreaseStock(itemDTO.quantity());
                     return item;
                 })
                 .collect(Collectors.toList());
 
+
         order.setItems(items);
+
+
 
         Order savedOrder = orderRepository.save(order);
         log.info("Pedido salvo com sucesso. ID: {}, Usuário: {}, Status: {}, Itens: {}",
@@ -140,12 +149,28 @@ public class OrderService {
         order.setUser(user);
         order.setDeliveryAddress(deliveryAddress);
 
+
+
+
         // Atualizar itens
         order.getItems().clear();
         List<OrderItem> items = orderDTO.items().stream()
                 .map(itemDTO -> {
                     OrderItem item = new OrderItem();
                     item.setOrder(order);
+
+                    Product product = productRepository.findById(itemDTO.productId())
+                            .orElseThrow(() -> {
+                                log.warn("Produto com ID {} não encontrado ao atualizar pedido", itemDTO.productId());
+                                return new IllegalStateException("Product " + itemDTO.productId() + " not found!");
+                            });
+
+                    if(itemDTO.quantity() > product.getStockQuantity()){
+                        log.warn("Quantidade solicitada ({}) para o produto com ID {} excede o estoque disponível ({})",
+                                itemDTO.quantity(), itemDTO.productId(), product.getStockQuantity());
+                        throw new IllegalStateException("Requested quantity exceeds available stock for product " + itemDTO.productId());
+                    }
+
                     item.setQuantity(itemDTO.quantity());
                     item.setPricePurchased(itemDTO.pricePurchased());
                     return item;
@@ -154,9 +179,16 @@ public class OrderService {
 
         order.setItems(items);
 
-        Order updatedOrder = orderRepository.save(order);
-        log.info("Pedido com ID {} atualizado com sucesso. Novo status: {}", id, updatedOrder.getOrderStatus());
-        return convertToResponseDTO(updatedOrder);
+        Order savedOrder = orderRepository.save(order);
+
+        shoppingCartRepository.findByUserId(orderDTO.userId())
+                .ifPresent(cart -> {
+                    shoppingCartRepository.delete(cart);
+                    log.info("Carrinho do usuário {} limpo após criação do pedido {}",
+                            orderDTO.userId(), savedOrder.getId()); // savedOrder existe aqui
+                });
+
+        return convertToResponseDTO(savedOrder);
     }
 
     @Transactional

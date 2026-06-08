@@ -3,6 +3,7 @@ package com.breno.marketplace_test.services;
 import com.breno.marketplace_test.dtos.CartItemDTO;
 import com.breno.marketplace_test.dtos.ShoppingCartRequestDTO;
 import com.breno.marketplace_test.dtos.ShoppingCartResponseDTO;
+import com.breno.marketplace_test.exceptions.InsufficientStockException;
 import com.breno.marketplace_test.models.*;
 import com.breno.marketplace_test.repositories.CartItemRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
@@ -71,6 +72,13 @@ public class ShoppingCartService {
                     CartItem item = new CartItem();
                     item.setCart(cart);
                     item.setProduct(product);
+
+                    if(itemDTO.quantity() > product.getStockQuantity()){
+                        log.error("Quantidade solicitada para o produto com ID {} excede o estoque disponível. Solicitado: {}, Disponível: {}",
+                                product.getId(), itemDTO.quantity(), product.getStockQuantity());
+                        throw new InsufficientStockException("Requested quantity exceeds available stock for product " + itemDTO.productId());
+                    }
+
                     item.setQuantity(itemDTO.quantity());
                     return item;
                 })

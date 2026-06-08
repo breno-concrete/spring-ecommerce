@@ -39,6 +39,8 @@ public class AuthService {
 
         log.info("User " + auth.getName() + " authenticated successfully.");
         return jwtTokenProvider.generateToken(auth.getName());
+
+
     }
 
     @Transactional

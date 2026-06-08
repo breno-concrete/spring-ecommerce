@@ -20,7 +20,7 @@ public record ProductResponseDTO(
                 product.getId(),
                 product.getName(),
                 product.getPrice(),
-                product.getUnit(),
+                product.getStockQuantity(),
                 // Evita NullPointerException caso a categoria seja nula
                 product.getCategory() != null ? product.getCategory().getId() : null,
                 product.getCategory() != null ? product.getCategory().getName() : null,
