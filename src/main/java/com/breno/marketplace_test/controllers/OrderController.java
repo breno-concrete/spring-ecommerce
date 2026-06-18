@@ -2,6 +2,7 @@ package com.breno.marketplace_test.controllers;
 
 import com.breno.marketplace_test.dtos.OrderRequestDTO;
 import com.breno.marketplace_test.dtos.OrderResponseDTO;
+import com.breno.marketplace_test.dtos.OrderStatusUpdateDTO;
 import com.breno.marketplace_test.models.Order;
 import com.breno.marketplace_test.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -87,6 +88,24 @@ public class OrderController {
         orderService.deleteOrder(id);
         log.info("Pedido com ID {} deletado com sucesso", id);
         return ResponseEntity.ok("Order deleted successfully!");
+    }
+
+    @PatchMapping("{id}/status")
+    @Operation(summary = "Update Order Status", description = "Updates the status of an order")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Order status updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid status transition"),
+            @ApiResponse(responseCode = "404", description = "Order not found")
+    })
+    public ResponseEntity<OrderResponseDTO> updateOrderStatus(@PathVariable Integer id, @Valid @RequestBody OrderStatusUpdateDTO requestDTO) {
+        log.info("Requisição PATCH para atualizar status do pedido com ID: {}. Novo status: {}", id, requestDTO.status());
+
+
+        OrderResponseDTO response = orderService.updateOrderStatus(id, requestDTO.status());
+        log.info("Status do pedido com ID {} atualizado com sucesso para {}", id, response.orderStatus());
+
+        return ResponseEntity.ok(response);
+
     }
 }
 

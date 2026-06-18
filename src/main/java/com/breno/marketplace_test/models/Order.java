@@ -29,7 +29,7 @@ public class Order extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus orderStatus;
+    private OrderStatus orderStatus = OrderStatus.AGUARDANDO_PAGAMENTO;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -42,5 +42,8 @@ public class Order extends BaseEntity{
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items = new ArrayList<>();
 
-
+    public void updateStatus(OrderStatus newStatus){
+        OrderStatus.validateTransition(this.orderStatus, newStatus);
+        this.orderStatus = newStatus;
+    }
 }

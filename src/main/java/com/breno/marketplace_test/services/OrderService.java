@@ -3,6 +3,7 @@ package com.breno.marketplace_test.services;
 import com.breno.marketplace_test.dtos.OrderItemDTO;
 import com.breno.marketplace_test.dtos.OrderRequestDTO;
 import com.breno.marketplace_test.dtos.OrderResponseDTO;
+import com.breno.marketplace_test.enums.OrderStatus;
 import com.breno.marketplace_test.mappers.OrderMapper;
 import com.breno.marketplace_test.models.*;
 import com.breno.marketplace_test.repositories.*;
@@ -145,7 +146,7 @@ public class OrderService {
         validateOwnership(order);
 
 
-        order.setOrderStatus(orderDTO.orderStatus());
+        order.updateStatus(orderDTO.orderStatus());
         order.setUser(user);
         order.setDeliveryAddress(deliveryAddress);
 
@@ -216,6 +217,28 @@ public class OrderService {
         }
     }
 
+
+    @Transactional
+    public OrderResponseDTO updateOrderStatus(Integer id, OrderStatus newStatus){
+        log.info("Atualizando status do pedido com ID: {} para o estado: {}", id, newStatus);
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("Pedido com ID {} não encontrado para atualização de status", id);
+                    return new IllegalStateException(id + " not found!");
+                });
+
+        validateOwnership(order);
+
+        order.updateStatus(newStatus);
+
+        Order savedOrder = orderRepository.save(order);
+
+        log.info("Status do pedido ID {} alterado com sucesso para {}", id, newStatus);
+
+        return convertToResponseDTO(savedOrder);
+    }
+
     private OrderResponseDTO convertToResponseDTO(Order order) {
         List<OrderItemDTO> itemDTOs = order.getItems().stream()
                 .map(item -> new OrderItemDTO(
@@ -234,6 +257,19 @@ public class OrderService {
                 order.getDeliveryAddress().getId(),
                 itemDTOs
         );
+
+
+
+    }
+
+    private void restoreStockForCancelledOrder(Order order){
+        log.info("Devolvendo estoque para o pedido cancelado ID: {}", order.getId());
+
+        for(OrderItem item : order.getItems()){
+            Product product = item.getProduct();
+            product.incrementStock(item.getQuantity());
+            productRepository.save(product);
+        }
     }
 }
 

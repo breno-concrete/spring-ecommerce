@@ -55,4 +55,11 @@ public class Product extends BaseEntity {
             throw new InsufficientStockException("Invalid quantity to decrease");
         }
     }
+
+    public void incrementStock(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("A quantidade para devolver ao estoque deve ser maior que zero.");
+        }
+        this.stockQuantity += quantity;
+    }
 }

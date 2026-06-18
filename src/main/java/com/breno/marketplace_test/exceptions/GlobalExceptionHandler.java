@@ -1,7 +1,9 @@
 package com.breno.marketplace_test.exceptions;
 
+import jakarta.persistence.Index;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.InheritInverseConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -191,6 +193,18 @@ public class GlobalExceptionHandler {
                 "Estoque Insuficiente",
                 ex.getMessage(),
                 "https://api.marketplace.com/errors/insufficient-stock",
+                request
+        );
+    }
+
+    @ExceptionHandler(InvalidOrderStatusTransitionException.class)
+    public ProblemDetail handleInvalidOrderStatusTransition(InvalidOrderStatusTransitionException ex, HttpServletRequest request) {
+        log.warn("Transição de status de pedido inválida: {}", ex.getMessage());
+        return buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "Transição de Status Inválida",
+                ex.getMessage(),
+                "https://api.marketplace.com/errors/invalid-order-status-transition",
                 request
         );
     }
