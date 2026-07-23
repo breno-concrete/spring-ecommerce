@@ -24,7 +24,7 @@ public class CartItem extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
-    private ShoppingCart cart;
+    private ShoppingCart shoppingCart;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
