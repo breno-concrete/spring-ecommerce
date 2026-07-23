@@ -4,36 +4,34 @@ import com.breno.marketplace_test.dtos.CartItemDTO;
 import com.breno.marketplace_test.dtos.ShoppingCartRequestDTO;
 import com.breno.marketplace_test.dtos.ShoppingCartResponseDTO;
 import com.breno.marketplace_test.exceptions.InsufficientStockException;
+import com.breno.marketplace_test.mappers.ShoppingCartMapper;
 import com.breno.marketplace_test.models.*;
 import com.breno.marketplace_test.repositories.CartItemRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import com.breno.marketplace_test.repositories.ShoppingCartRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
 import com.breno.marketplace_test.security.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
-    private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
-    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, CartItemRepository cartItemRepository,
-                              UserRepository userRepository, ProductRepository productRepository) {
-        this.shoppingCartRepository = shoppingCartRepository;
-        this.cartItemRepository = cartItemRepository;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-    }
+    private final ShoppingCartMapper shoppingCartMapper;
+
 
     @Transactional(readOnly = true)
     public List<ShoppingCart> findAll() {
@@ -70,7 +68,7 @@ public class ShoppingCartService {
                             });
 
                     CartItem item = new CartItem();
-                    item.setCart(cart);
+                    item.setShoppingCart(cart);
                     item.setProduct(product);
 
                     if(itemDTO.quantity() > product.getStockQuantity()){
@@ -122,7 +120,7 @@ public class ShoppingCartService {
                             });
 
                     CartItem item = new CartItem();
-                    item.setCart(cart);
+                    item.setShoppingCart(cart);
                     item.setProduct(product);
                     item.setQuantity(itemDTO.quantity());
                     return item;
@@ -150,6 +148,59 @@ public class ShoppingCartService {
         log.info("Carrinho com ID {} deletado com sucesso", id);
     }
 
+    @Transactional
+    public ShoppingCartResponseDTO getCartByUserId(Long userId){
+        log.info("Buscando carrinho para o usuário com ID: {}", userId);
+
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    log.warn("Carrinho para o usuário com ID {} não encontrado", userId);
+                    return new IllegalStateException("Cart for user " + userId + " not found!");
+                });
+        validateOwnership(cart);
+
+
+        return convertToResponseDTO(cart);
+    }
+
+    @Transactional
+    public ShoppingCartResponseDTO addItemToCart(Long userId, CartItemDTO itemRequest){
+        log.info("Adicionando produto ID {} ao carrinho do usuário {}", itemRequest.productId(), userId);
+
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    log.info("Carrinho não encontrado para o usuário {}. Criando um novo...", userId);
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new IllegalStateException("Usuário não encontrado: " + userId));
+
+                    ShoppingCart newCart = new ShoppingCart();
+                    newCart.setUser(user);
+                    return shoppingCartRepository.save(newCart);
+                });
+
+        validateOwnership(cart);
+
+        Product product = productRepository.findById(itemRequest.productId())
+                .orElseThrow(() -> new IllegalStateException("Produto não encontrado com ID: " + itemRequest.productId()));
+
+        Optional<CartItem> existingItemOpt = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(product.getId()))
+                .findFirst();
+
+        if (existingItemOpt.isPresent()) {
+            incrementItemQuantity(existingItemOpt.get(), itemRequest.quantity());
+        } else{
+
+            addNewItemToCart(cart, product, itemRequest.quantity());
+        }
+
+        ShoppingCart savedCart = shoppingCartRepository.save(cart);
+        return shoppingCartMapper.toDTO(savedCart);
+    }
+
+    @Transactional
+    ShoppingCartResponseDTO updateCartItemQuantity()
+
 
     private void validateOwnership(ShoppingCart cart){
         Long currentUserId = SecurityUtil.getCurrentUserId();
@@ -160,6 +211,7 @@ public class ShoppingCartService {
             throw new AccessDeniedException("You do not have permission to access this cart");
         }
     }
+//------- MÉTODOS AUXILIARES ------
 
     private ShoppingCartResponseDTO convertToResponseDTO(ShoppingCart cart) {
         List<CartItemDTO> itemDTOs = cart.getItems().stream()
@@ -175,6 +227,20 @@ public class ShoppingCartService {
                 cart.getUser().getId(),
                 itemDTOs
         );
+    }
+
+    private void incrementItemQuantity(CartItem item, Integer quantityToAdd) {
+        item.setQuantity(item.getQuantity() + quantityToAdd);
+
+    }
+
+    private void addNewItemToCart(ShoppingCart cart, Product product, Integer quantity) {
+        CartItem newItem = new CartItem();
+        newItem.setProduct(product);
+        newItem.setShoppingCart(cart);
+        newItem.setQuantity(quantity);
+
+        cart.getItems().add(newItem);
     }
 }
 
