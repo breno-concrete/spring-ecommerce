@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @RestController
-@RequestMapping("api/v1/orders")
+@RequestMapping("/api/v1/orders")
 public class OrderController {
 
     private final OrderService orderService;
