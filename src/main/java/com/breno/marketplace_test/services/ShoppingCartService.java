@@ -277,11 +277,6 @@ public class ShoppingCartService {
     }
 
 
-
-
-
-
-
     private void validateOwnership(ShoppingCart cart){
         Long currentUserId = SecurityUtil.getCurrentUserId();
         Long cartId = cart.getUser().getId();
