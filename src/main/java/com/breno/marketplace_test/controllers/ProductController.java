@@ -19,7 +19,7 @@ import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @RestController
-@RequestMapping("api/v1/products")
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -40,14 +40,14 @@ public class ProductController {
     @PostMapping
     @Operation(summary = "Create Product", description = "Creates a new product")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Product created"),
+            @ApiResponse(responseCode = "201", description = "Product created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO product){
         log.info("Requisição POST para criar novo produto: {}", product.name());
         ProductResponseDTO response = productService.saveProduct(product);
         log.info("Produto criado com sucesso. ID: {}", response.id());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping("{id}")
@@ -83,7 +83,7 @@ public class ProductController {
         log.info("Requisição DELETE para deletar produto com ID: {}", id);
         productService.deleteProduct(id);
         log.info("Produto com ID {} deletado com sucesso", id);
-        return ResponseEntity.ok("Product deleted successfully!");
+        return ResponseEntity.noContent().build();
     }
 }
 

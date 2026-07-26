@@ -12,6 +12,7 @@ import com.breno.marketplace_test.repositories.ShoppingCartRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
 import com.breno.marketplace_test.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +88,8 @@ public class ShoppingCartService {
         ShoppingCart savedCart = shoppingCartRepository.save(cart);
         log.info("Carrinho salvo com sucesso. ID: {}, Usuário: {}, Itens: {}",
                 savedCart.getId(), user.getEmail(), items.size());
-        return convertToResponseDTO(savedCart);
+
+        return shoppingCartMapper.toDTO(savedCart);
     }
 
     @Transactional
@@ -131,7 +133,8 @@ public class ShoppingCartService {
 
         ShoppingCart updatedCart = shoppingCartRepository.save(cart);
         log.info("Carrinho com ID {} atualizado com sucesso. Novos itens: {}", id, items.size());
-        return convertToResponseDTO(updatedCart);
+
+        return shoppingCartMapper.toDTO(updatedCart);
     }
 
     @Transactional
@@ -160,7 +163,7 @@ public class ShoppingCartService {
         validateOwnership(cart);
 
 
-        return convertToResponseDTO(cart);
+        return shoppingCartMapper.toDTO(cart);
     }
 
     @Transactional
@@ -199,7 +202,79 @@ public class ShoppingCartService {
     }
 
     @Transactional
-    ShoppingCartResponseDTO updateCartItemQuantity()
+    public ShoppingCartResponseDTO updateCartItemQuantity(Long userId, Long productId, Integer newQuantity){
+        log.info("Atualizando quantidade do produto ID {} para {} no carrinho do usuário {}", productId, newQuantity, userId);
+
+        if(newQuantity == null || newQuantity <= 0){
+            log.warn("Tentativa de atualizar produto ID {} com quantidade inválida ({})", productId, newQuantity);
+            throw new IllegalArgumentException("A quantidade do item deve ser maior que zero.");
+        }
+
+
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    log.warn("Carrinho não encontrado para o usuário {}", userId);
+                    return new IllegalStateException("Cart for user " + userId + " not found!");
+                });
+
+        validateOwnership(cart);
+
+        CartItem itemToUpdate = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.warn("Produto ID {} não encontrado no carrinho do usuário {}", productId, userId);
+                    return new IllegalStateException("Product " + productId + " not found in the cart!");
+                });
+
+        Product product = itemToUpdate.getProduct();
+        if (newQuantity > product.getStockQuantity()) {
+            log.error("Estoque insuficiente para o produto {}. Solicitado: {}, Disponível: {}",
+                    productId, newQuantity, product.getStockQuantity());
+            throw new InsufficientStockException("Requested quantity exceeds available stock for product " + productId);
+        }
+
+        itemToUpdate.setQuantity(newQuantity);
+        ShoppingCart savedCart = shoppingCartRepository.save(cart);
+
+        log.info("Quantidade do produto ID {} atualizada com sucesso no carrinho ID {}", productId, savedCart.getId());
+
+        return shoppingCartMapper.toDTO(savedCart);
+
+
+    }
+
+    @Transactional
+    public ShoppingCartResponseDTO removeItemFromCart(Long userId, Long productId){
+
+        log.info("Removendo produto ID {} do carrinho do usuário {}", productId, userId);
+
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("Cart for user " + userId + " not found!"));
+
+        validateOwnership(cart);
+
+        cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
+        ShoppingCart savedCart = shoppingCartRepository.save(cart);
+        log.info("Produto ID {} removido com sucesso do carrinho ID {}", productId, savedCart.getId());
+        return shoppingCartMapper.toDTO(savedCart);
+    }
+
+
+    @Transactional
+    public ShoppingCartResponseDTO clearCart(Long userId){
+        log.info("Limpando carrinho do usuário {}", userId);
+
+        ShoppingCart cart = shoppingCartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("Cart for user " + userId + " not found!"));
+
+        validateOwnership(cart);
+
+        cart.getItems().clear();
+        ShoppingCart savedCart = shoppingCartRepository.save(cart);
+        log.info("Carrinho ID {} limpo com sucesso para o usuário {}", savedCart.getId(), userId);
+        return shoppingCartMapper.toDTO(savedCart);
+    }
 
 
     private void validateOwnership(ShoppingCart cart){
@@ -213,21 +288,7 @@ public class ShoppingCartService {
     }
 //------- MÉTODOS AUXILIARES ------
 
-    private ShoppingCartResponseDTO convertToResponseDTO(ShoppingCart cart) {
-        List<CartItemDTO> itemDTOs = cart.getItems().stream()
-                .map(item -> new CartItemDTO(
-                        item.getId(),
-                        item.getProduct().getId(),
-                        item.getQuantity()
-                ))
-                .collect(Collectors.toList());
 
-        return new ShoppingCartResponseDTO(
-                cart.getId(),
-                cart.getUser().getId(),
-                itemDTOs
-        );
-    }
 
     private void incrementItemQuantity(CartItem item, Integer quantityToAdd) {
         item.setQuantity(item.getQuantity() + quantityToAdd);

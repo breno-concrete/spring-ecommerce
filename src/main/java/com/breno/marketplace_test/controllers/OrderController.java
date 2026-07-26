@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @RestController
-@RequestMapping("api/v1/orders")
+@RequestMapping("/api/v1/orders")
 public class OrderController {
 
     private final OrderService orderService;
@@ -44,14 +44,14 @@ public class OrderController {
     @PostMapping
     @Operation(summary = "Create Order", description = "Creates a new order")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Order created"),
+            @ApiResponse(responseCode = "201", description = "Order created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO order) {
         log.info("Requisição POST para criar novo pedido. Usuário: {}", order.userId());
         OrderResponseDTO response = orderService.saveOrder(order);
         log.info("Pedido criado com sucesso. ID: {}, Status: {}", response.id(), response.orderStatus());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping("{id}")
@@ -80,14 +80,14 @@ public class OrderController {
     @DeleteMapping("{id}")
     @Operation(summary = "Delete Order", description = "Deletes an order by ID")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Order deleted"),
+            @ApiResponse(responseCode = "204", description = "Order deleted"),
             @ApiResponse(responseCode = "404", description = "Order not found")
     })
     public ResponseEntity<String> deleteOrder(@PathVariable Integer id) {
         log.info("Requisição DELETE para deletar pedido com ID: {}", id);
         orderService.deleteOrder(id);
         log.info("Pedido com ID {} deletado com sucesso", id);
-        return ResponseEntity.ok("Order deleted successfully!");
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("{id}/status")
