@@ -36,7 +36,7 @@ public class ShoppingCartController {
 
         ShoppingCartResponseDTO response = shoppingCartService.addItemToCart(userId, cartRequest);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(201).body(response);
 
     }
 
@@ -78,7 +78,7 @@ public class ShoppingCartController {
 
         ShoppingCartResponseDTO response = shoppingCartService.clearCart(userId);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
 }

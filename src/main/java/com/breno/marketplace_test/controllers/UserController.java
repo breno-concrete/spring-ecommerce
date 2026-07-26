@@ -39,7 +39,7 @@ public class UserController {
         log.info("Requisição POST para criar novo usuário com email: {}", user.email());
         userService.saveUser(user);
         log.info("Usuário criado com sucesso: {}", user.email());
-        return ok("User created successfully!");
+        return ResponseEntity.status(201).body("Usuário criado com sucesso: " + user.email());
     }
 
     @GetMapping("/me")

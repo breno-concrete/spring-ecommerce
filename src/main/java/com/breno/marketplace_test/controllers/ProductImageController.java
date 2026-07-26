@@ -30,7 +30,7 @@ public class ProductImageController {
     public ResponseEntity<ProductImageResponseDTO> addImage(@RequestBody ProductImageRequestDTO imageDTO){
 
         ProductImageResponseDTO savedImage = productImageService.saveProductImage(imageDTO);
-        return ResponseEntity.ok(savedImage);
+        return ResponseEntity.status(201).body(savedImage);
     }
 
 

@@ -39,14 +39,14 @@ public class CategoryController {
     @PostMapping
     @Operation(summary = "Create Category", description = "Creates a new category")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Category created"),
+            @ApiResponse(responseCode = "201", description = "Category created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO category) {
         log.info("Requisição POST para criar nova categoria: {}", category.name());
         CategoryResponseDTO response = categoryService.saveCategory(category);
         log.info("Categoria criada com sucesso. ID: {}", response.id());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(201).body(response);
     }
 
     @GetMapping("{id}")
@@ -78,11 +78,11 @@ public class CategoryController {
             @ApiResponse(responseCode = "200", description = "Category deleted"),
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
-    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         log.info("Requisição DELETE para deletar categoria com ID: {}", id);
         categoryService.deleteCategory(id);
         log.info("Categoria com ID {} deletada com sucesso", id);
-        return ResponseEntity.ok("Category deleted successfully!");
+        return ResponseEntity.noContent().build();
     }
 }
 

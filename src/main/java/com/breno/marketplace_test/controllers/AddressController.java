@@ -38,14 +38,14 @@ public class AddressController {
     @PostMapping
     @Operation(summary = "Create Address", description = "Creates a new address")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Address created"),
+            @ApiResponse(responseCode = "201", description = "Address created"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     public ResponseEntity<AddressResponseDTO> createAddress(@Valid @RequestBody AddressRequestDTO address) {
         log.info("Requisição POST para criar novo endereço. Usuário: {}", address.userId());
         AddressResponseDTO response = addressService.saveAddress(address);
         log.info("Endereço criado com sucesso. ID: {}", response.id());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(201).body(response);
     }
 
 
@@ -87,7 +87,7 @@ public class AddressController {
         log.info("Requisição DELETE para deletar endereço com ID: {}", id);
         addressService.deleteAddress(id);
         log.info("Endereço com ID {} deletado com sucesso", id);
-        return ResponseEntity.ok("Address deleted successfully!");
+        return ResponseEntity.noContent().build();
     }
 }
 
