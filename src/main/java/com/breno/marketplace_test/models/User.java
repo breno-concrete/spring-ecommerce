@@ -2,6 +2,7 @@ package com.breno.marketplace_test.models;
 
 import com.breno.marketplace_test.enums.UserRole;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -28,9 +29,11 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String fullName;
 
     @Column(unique = true, nullable = false)
+    @NotBlank
     private String email;
 
     @Column(nullable = false)

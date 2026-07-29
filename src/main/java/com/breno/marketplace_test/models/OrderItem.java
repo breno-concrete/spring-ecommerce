@@ -1,6 +1,7 @@
 package com.breno.marketplace_test.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -25,9 +26,11 @@ public class OrderItem extends BaseEntity{
     private Order order;
 
     @Column(nullable = false)
+    @Positive
     private Integer quantity;
 
-    @Column(nullable = false)
+    @Positive
+    @Column(precision = 10, scale = 2)
     private BigDecimal pricePurchased;
 
     @ManyToOne

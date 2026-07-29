@@ -1,6 +1,7 @@
 package com.breno.marketplace_test.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,6 +32,7 @@ public class CartItem extends BaseEntity {
     private Product product;
 
     @Column(nullable = false)
+    @Positive
     private Integer quantity;
 
 }

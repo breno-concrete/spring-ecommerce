@@ -2,6 +2,7 @@ package com.breno.marketplace_test.models;
 
 import com.breno.marketplace_test.exceptions.InsufficientStockException;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,10 +32,12 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Positive
+    @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
     @Column(nullable = false)
+    @Positive
     private Integer stockQuantity;
 
     @ManyToOne
