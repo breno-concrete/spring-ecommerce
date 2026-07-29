@@ -1,6 +1,8 @@
 package com.breno.marketplace_test.dtos;
 
 import com.breno.marketplace_test.enums.OrderStatus;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -16,7 +18,8 @@ public record OrderRequestDTO(
         @NotNull(message = "Delivery address ID is required")
         Long deliveryAddressId,
 
-        @NotNull(message = "Order items are required")
+        @NotEmpty(message = "The order must contain at least one item")
+        @Valid
         List<OrderItemDTO> items
 ) {}
 
