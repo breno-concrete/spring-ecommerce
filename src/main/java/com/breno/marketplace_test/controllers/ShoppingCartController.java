@@ -3,6 +3,7 @@ package com.breno.marketplace_test.controllers;
 import com.breno.marketplace_test.dtos.*;
 import com.breno.marketplace_test.security.SecurityUtil;
 import com.breno.marketplace_test.services.ShoppingCartService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
+@Tag(name = "Cart", description = "Operações do carrinho de compras do usuário")
 public class ShoppingCartController {
 
     private final ShoppingCartService shoppingCartService;

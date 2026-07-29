@@ -1,5 +1,6 @@
 package com.breno.marketplace_test.dtos;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 public record AddressRequestDTO(
@@ -8,6 +9,7 @@ public record AddressRequestDTO(
                 regexp = "^\\d{5}-?\\d{3}$",
                 message = "Zip code must be in the format XXXXX-XXX or XXXXXXXX"
         )
+        @Schema()
         String zipCode,
 
         @NotBlank(message = "Street is required")

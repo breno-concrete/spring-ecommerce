@@ -3,6 +3,7 @@ package com.breno.marketplace_test.controllers;
 import com.breno.marketplace_test.dtos.ProductImageRequestDTO;
 import com.breno.marketplace_test.dtos.ProductImageResponseDTO;
 import com.breno.marketplace_test.services.ProductImageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/products/{productId}/images")
+@Tag(name = "Products", description = "Gerenciamento e catálogo de produtos do marketplace")
 public class ProductImageController {
 
     private ProductImageService productImageService;
