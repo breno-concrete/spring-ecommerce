@@ -20,16 +20,14 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Ecommerce API")
+                        .title("Minha API")
                         .version("1.0.0")
-                        .description("API RESTful desenvolvida em Spring Boot para gerenciamento completo de um ecossistema de e-commerce, incluindo controle de usuários, produtos, carrinhos de compras e pedidos.")
+                        .description("Documentação da API")
                         .contact(new Contact()
-                                .name("Breno Gomes Cardoso")
-                                .url("https://github.com/breno-concrete")
+                                .name("Breno")
                                 .email("brenocount@gmail.com"))
                         .license(new License()
-                                .url("https://opensource.org/licenses/MIT")
-                                .name("MIT License")))
+                                .name("Apache 2.0")))
 
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
 
