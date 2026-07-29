@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,13 @@ public class AddressController {
 
     @GetMapping
     @Operation(summary = "List all addresses", description = "Returns a list of all addresses")
-    public List<AddressResponseDTO> getAddresses() {
-        return addressService.findAll();
+    public ResponseEntity<Page<AddressResponseDTO>> getAddresses(@ParameterObject Pageable pageable) {
+
+        log.info("Requisição GET para listar endereços. Página: {}, Tamanho: {}", pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<AddressResponseDTO> page = addressService.findAll(pageable);
+
+        return ResponseEntity.ok(page);
     }
 
 

@@ -2,13 +2,19 @@ package com.breno.marketplace_test.controllers;
 
 import com.breno.marketplace_test.dtos.CategoryRequestDTO;
 import com.breno.marketplace_test.dtos.CategoryResponseDTO;
+import com.breno.marketplace_test.mappers.CategoryMapper;
 import com.breno.marketplace_test.models.Category;
+import com.breno.marketplace_test.repositories.CategoryRepository;
 import com.breno.marketplace_test.services.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,21 +23,24 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
 
 
     @GetMapping
     @Operation(summary = "List all categories", description = "Returns a list of all categories")
-    public List<CategoryResponseDTO> getCategories() {
+    public ResponseEntity<Page<CategoryResponseDTO>>getCategories(@ParameterObject Pageable pageable) {
         log.info("Requisição GET para listar todas as categorias");
-        return categoryService.findAll();
+
+        Page<CategoryResponseDTO> page = categoryService.findAll(pageable);
+
+        return ResponseEntity.ok(page);
     }
 
 

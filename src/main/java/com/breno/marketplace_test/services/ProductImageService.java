@@ -8,6 +8,8 @@ import com.breno.marketplace_test.models.ProductImage;
 import com.breno.marketplace_test.repositories.ProductImageRepository;
 import com.breno.marketplace_test.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ public class ProductImageService {
 
 
     @Transactional(readOnly = true)
-    public List<ProductImageResponseDTO> findImagesByProductId(Long productId){
+    public Page<ProductImageResponseDTO> findImagesByProductId(Pageable pageable,Long productId){
         log.info("Buscando imagens para o produto ID: {}", productId);
 
         if (!productRepository.existsById(productId)) {
@@ -33,7 +35,11 @@ public class ProductImageService {
             throw new IllegalStateException("Product " + productId + " not found!");
         }
 
-        return productImageMapper.toDTO(productImageRepository.findByProductId(productId));
+
+        Page<ProductImage> productImagePage = productImageRepository.findByProductId(pageable, productId);
+
+        return productImagePage.map(productImageMapper::toDTO);
+
     }
 
     @Transactional

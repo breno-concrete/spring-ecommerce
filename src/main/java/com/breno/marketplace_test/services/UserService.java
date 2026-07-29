@@ -4,6 +4,7 @@ import com.breno.marketplace_test.dtos.MeResponseDTO;
 import com.breno.marketplace_test.dtos.UserRequestDTO;
 import com.breno.marketplace_test.dtos.UserResponseDTO;
 import com.breno.marketplace_test.exceptions.UserAlreadyExistsException;
+import com.breno.marketplace_test.mappers.UserMapper;
 import com.breno.marketplace_test.models.CartItem;
 import com.breno.marketplace_test.models.ShoppingCart;
 import com.breno.marketplace_test.models.User;
@@ -14,6 +15,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.breno.marketplace_test.exceptions.ForbiddenAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +33,7 @@ public class UserService {
 
 
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
     //precisa de final pois o @RequiredArgsConstructor vai reocnehcer ele e colocar no construtor
     // Previne Bugs
 
@@ -57,8 +61,10 @@ public class UserService {
         return toResponseDTO(savedUser);
     }
 
-    public List<UserResponseDTO> findAll(){
-        return userRepository.findAll().stream().map(this::toResponseDTO).toList();
+    public Page<UserResponseDTO> findAll(Pageable pageable){
+
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(userMapper::toDTO);
     }
 
     public User findById(Long id){

@@ -5,6 +5,11 @@ import com.breno.marketplace_test.dtos.ProductImageResponseDTO;
 import com.breno.marketplace_test.services.ProductImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +24,12 @@ public class ProductImageController {
     private ProductImageService productImageService;
 
     @GetMapping
-    public ResponseEntity<List<ProductImageResponseDTO>> getImage(@PathVariable Long productId){
-        List<ProductImageResponseDTO> images = productImageService.findImagesByProductId(productId);
+    public ResponseEntity<Page<ProductImageResponseDTO>> getImage(
+            @ParameterObject
+            Pageable pageable,
+            Long productId){
+
+        Page<ProductImageResponseDTO> images = productImageService.findImagesByProductId(pageable,productId);
 
         // Retorna 200 OK. Se a lista estiver vazia, retorna um array vazio [] no JSON.
         return ResponseEntity.ok(images);

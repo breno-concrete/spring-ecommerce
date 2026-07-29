@@ -9,30 +9,27 @@ import com.breno.marketplace_test.repositories.AddressRepository;
 import com.breno.marketplace_test.repositories.UserRepository;
 import com.breno.marketplace_test.security.SecurityUtil;
 import com.breno.marketplace_test.exceptions.ForbiddenAccessException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AddressService {
 
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final AddressMapper addressMapper;
 
-    public AddressService(AddressRepository addressRepository, UserRepository userRepository, AddressMapper addressMapper) {
-        this.addressRepository = addressRepository;
-        this.userRepository = userRepository;
-        this.addressMapper = addressMapper;
-    }
 
     @Transactional(readOnly = true)
-    public List<AddressResponseDTO> findAll() {
-        List<Address> addresses = addressRepository.findAll();
-        return addressMapper.toDTOList(addresses);
+    public Page<AddressResponseDTO> findAll(Pageable pageable) {
+        Page<Address> addressPage = addressRepository.findAll(pageable);
+        return addressPage.map(addressMapper::toDTO);
     }
 
     @Transactional(readOnly = true)

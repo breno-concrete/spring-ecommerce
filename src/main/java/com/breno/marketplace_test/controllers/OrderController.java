@@ -3,16 +3,17 @@ package com.breno.marketplace_test.controllers;
 import com.breno.marketplace_test.dtos.OrderRequestDTO;
 import com.breno.marketplace_test.dtos.OrderResponseDTO;
 import com.breno.marketplace_test.dtos.OrderStatusUpdateDTO;
-import com.breno.marketplace_test.models.Order;
 import com.breno.marketplace_test.services.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,13 +33,15 @@ public class OrderController {
     @GetMapping
     @Operation(summary = "List all orders", description = "Returns a list of all orders")
     public ResponseEntity<Page<OrderResponseDTO>> getOrders(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @ParameterObject
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "creationTime"));
+        log.info("Requisição GET para listar pedidos do usuário logado");
 
-        Page<OrderResponseDTO> pedidosPaginados = orderService.findAll(pageable);
-        return ResponseEntity.ok(pedidosPaginados);
+        Page<OrderResponseDTO> pageOrder = orderService.findAll(pageable);
+
+        return ResponseEntity.ok(pageOrder);
     }
 
     @PostMapping

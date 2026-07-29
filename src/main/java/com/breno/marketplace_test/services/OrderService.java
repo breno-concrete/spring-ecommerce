@@ -39,7 +39,13 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponseDTO> findAll(Pageable pageable) {
         // 1. Busca a página de entidades do banco
-        Page<Order> ordersPage = orderRepository.findAll(pageable);
+
+        Long currentUserId = SecurityUtil.getCurrentUserId();
+
+        log.info("Buscando página de pedidos para o usuário ID: {}", currentUserId);
+
+
+        Page<Order> ordersPage = orderRepository.findByUserId(currentUserId, pageable);
 
         // 2. Usa o .map() da própria página para converter cada item usando o seu Mapper
         return ordersPage.map(orderMapper::toDTO);

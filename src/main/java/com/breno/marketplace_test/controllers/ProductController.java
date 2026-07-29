@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,9 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> search(
             @ModelAttribute ProductFilterDTO filter,
-            @ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable) {
+            @ParameterObject
+            @PageableDefault(sort = "name", direction = Sort.Direction.ASC)
+            Pageable pageable){
 
         Page<ProductResponseDTO> result = productService.searchProducts(filter, pageable);
         return ResponseEntity.ok(result);

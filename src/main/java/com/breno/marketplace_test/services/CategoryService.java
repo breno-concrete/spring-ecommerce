@@ -5,11 +5,12 @@ import com.breno.marketplace_test.dtos.CategoryResponseDTO;
 import com.breno.marketplace_test.mappers.CategoryMapper;
 import com.breno.marketplace_test.models.Category;
 import com.breno.marketplace_test.repositories.CategoryRepository;
+
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Slf4j
 @Service
@@ -24,10 +25,12 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponseDTO> findAll() {
+    public Page<CategoryResponseDTO> findAll(Pageable pageable) {
         log.info("Buscando todas as categorias");
-        List<Category> categories = categoryRepository.findAll();
-        return categoryMapper.toDTOList(categories);
+
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+
+        return categoryPage.map(categoryMapper::toDTO);
     }
 
     @Transactional(readOnly = true)
