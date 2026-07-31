@@ -21,7 +21,7 @@ public class ProductImage extends BaseEntity {
     private String url; // O link da foto que ficará guardada na nuvem ou servidor
 
     // MUITAS imagens pertencem a UM produto
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }

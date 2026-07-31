@@ -22,7 +22,7 @@ public class ShoppingCart extends BaseEntity {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 

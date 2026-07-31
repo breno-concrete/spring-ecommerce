@@ -31,11 +31,11 @@ public class Order extends BaseEntity{
     @Column(nullable = false)
     private OrderStatus orderStatus = OrderStatus.AGUARDANDO_PAGAMENTO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", nullable = false)
     private Address deliveryAddress;
 

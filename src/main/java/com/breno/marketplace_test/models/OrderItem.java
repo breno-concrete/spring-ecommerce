@@ -20,7 +20,7 @@ public class OrderItem extends BaseEntity{
     @EqualsAndHashCode.Include
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     @ToString.Exclude
     private Order order;
@@ -33,7 +33,7 @@ public class OrderItem extends BaseEntity{
     @Column(precision = 10, scale = 2)
     private BigDecimal pricePurchased;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
