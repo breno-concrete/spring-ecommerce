@@ -26,8 +26,14 @@ public class CacheConfig {
         specificConfigs.put("token-blacklist", RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(24)));
 
-        specificConfigs.put("categorias", RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30))); // outras gavetas de cache par aotimizar busca no banco de dados
+        specificConfigs.put("categories", RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30))); // outras gavetas de cache para otimizar busca no banco de dados
+
+        specificConfigs.put("products", RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30)));
+
+        specificConfigs.put("users-details", RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(5)));
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig) // Passa o padrão

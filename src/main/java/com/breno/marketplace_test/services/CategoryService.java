@@ -6,6 +6,8 @@ import com.breno.marketplace_test.mappers.CategoryMapper;
 import com.breno.marketplace_test.models.Category;
 import com.breno.marketplace_test.repositories.CategoryRepository;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional; // USE ESTA
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class CategoryService {
         this.categoryMapper = categoryMapper;
     }
 
+    @Cacheable("categories")
     @Transactional(readOnly = true)
     public Page<CategoryResponseDTO> findAll(Pageable pageable) {
         log.info("Buscando todas as categorias");
@@ -33,12 +36,14 @@ public class CategoryService {
         return categoryPage.map(categoryMapper::toDTO);
     }
 
+    @Cacheable("categories")
     @Transactional(readOnly = true)
     public CategoryResponseDTO findCategoryById(Long id) {
         return categoryMapper.toDTO(categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(id + " not found!")));
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public CategoryResponseDTO saveCategory(CategoryRequestDTO categoryDTO) {
         log.info("Salvando nova categoria: {}", categoryDTO.name());
@@ -50,6 +55,7 @@ public class CategoryService {
         return convertToResponseDTO(savedCategory);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryDTO) {
         log.info("Atualizando categoria com ID: {}", id);
@@ -66,6 +72,7 @@ public class CategoryService {
         return convertToResponseDTO(updatedCategory);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public void deleteCategory(Long id) {
         log.info("Deletando categoria com ID: {}", id);

@@ -5,6 +5,7 @@ import com.breno.marketplace_test.repositories.UserRepository;
 import com.breno.marketplace_test.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +19,7 @@ public class AuthorizationService implements UserDetailsService {
     private final UserRepository repository;
 
     @Override
+    @Cacheable(value = "users-details", key = "#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Carregando detalhes do usuário com username/email: {}", username);
         // 1. Busca o usuário no banco.
