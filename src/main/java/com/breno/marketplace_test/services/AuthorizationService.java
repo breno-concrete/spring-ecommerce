@@ -19,7 +19,8 @@ public class AuthorizationService implements UserDetailsService {
     private final UserRepository repository;
 
     @Override
-    @Cacheable(value = "users-details", key = "#username")
+    // DESLIGADO TEMPORARIAMENTE NO AMBIENTE LOCAL POR CAUSA DO DEVTOOLS
+    //@Cacheable(value = "users-details", key = "#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Carregando detalhes do usuário com username/email: {}", username);
         // 1. Busca o usuário no banco.

@@ -3,6 +3,7 @@ package com.breno.marketplace_test.dtos;
 import com.breno.marketplace_test.models.Product;
 import com.breno.marketplace_test.models.ProductImage;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public record ProductResponseDTO(
         Long categoryId,
         String categoryName,
         List<String> imageUrls
-) {
+) implements Serializable {
     public ProductResponseDTO(Product product) {
         this(
                 product.getId(),
