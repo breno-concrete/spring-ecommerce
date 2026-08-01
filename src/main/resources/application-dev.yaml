@@ -19,8 +19,8 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
-    show-sql: false
+        format_sql: false
+    show-sql: true
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -48,3 +48,6 @@ logging:
   level:
     org.flywaydb: DEBUG
     org.springframework.boot.autoconfigure.flyway: TRACE
+    # --- SQL Debug (desabilitar em prod) ---
+    org.hibernate.SQL: DEBUG                  # imprime cada SQL gerado
+    org.hibernate.orm.jdbc.bind: TRACE        # imprime os parâmetros bindados
